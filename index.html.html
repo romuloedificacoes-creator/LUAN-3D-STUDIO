@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão LUAN 3D STUDIO</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Bibliotecas jsPDF e jsPDF-AutoTable para geração vetorial 100% confiável de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        filament: {
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                        },
+                        charcoal: {
+                            800: '#1f2933',
+                            900: '#111827',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos específicos para impressão / geração de PDF profissional */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #111827 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #print-report-container {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-charcoal-900 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Navbar Superior -->
+    <header class="no-print bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-xs transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+                <!-- Logo Vetorial fiel à identidade Luan 3D Studio -->
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-charcoal-800 dark:border-slate-600 shadow-md flex items-center justify-center p-1 shrink-0">
+                    <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="24" y="22" width="72" height="72" rx="10" fill="none" stroke="#1F2933" stroke-width="7"/>
+                        <line x1="24" y1="40" x2="96" y2="40" stroke="#1F2933" stroke-width="5"/>
+                        <path d="M36 94 L42 86 L78 86 L84 94" fill="#1F2933"/>
+                        <rect x="50" y="32" width="16" height="16" rx="3" fill="#1F2933"/>
+                        <polygon points="53,48 63,48 58,56" fill="#1F2933"/>
+                        <path d="M74 20 Q60 22 58 32" fill="none" stroke="#F97316" stroke-width="4.5" stroke-linecap="round"/>
+                        <path d="M58 56 C58 68, 38 64, 42 78 C45 86, 62 84, 60 76 C58 70, 50 74, 54 81 C58 87, 74 78, 82 68" fill="none" stroke="#F97316" stroke-width="4.2" stroke-linecap="round"/>
+                        <g transform="translate(66, 56)">
+                            <polygon points="16,2 30,10 30,26 16,34 2,26 2,10" fill="#ffffff" stroke="#1D4ED8" stroke-width="3.8" stroke-linejoin="round"/>
+                            <polyline points="2,10 16,18 30,10" fill="none" stroke="#1D4ED8" stroke-width="3.8" stroke-linejoin="round"/>
+                            <line x1="16" y1="18" x2="16" y2="34" stroke="#1D4ED8" stroke-width="3.8" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div>
+                    <h1 class="font-extrabold text-base sm:text-2xl tracking-tight text-charcoal-800 dark:text-white leading-none">
+                        Luan <span class="text-brand-600 dark:text-blue-400">3D Studio</span>
+                    </h1>
+                    <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                        <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                        <span id="sync-status-text">Nuvem Sincronizada (PC & Tablet)</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-2.5">
+                <!-- Botão Modo Claro / Escuro -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" title="Alternar Modo Claro / Escuro" class="p-2.5 text-slate-600 dark:text-slate-300 hover:text-charcoal-900 dark:hover:text-white bg-slate-100/80 dark:bg-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition">
+                    <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Botão Exportar PDF Profissional -->
+                <button onclick="openPdfOptionsModal()" title="Gerar Relatório de Pedidos em PDF" class="p-2.5 text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-blue-400 bg-white dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition flex items-center gap-1.5 text-sm font-medium">
+                    <i data-lucide="file-text" class="w-4 h-4 text-filament-500"></i>
+                    <span class="hidden lg:inline">Exportar PDF</span>
+                </button>
+
+                <!-- Botão Backup Completo (Exportar / Restaurar) -->
+                <div class="relative">
+                    <button onclick="toggleBackupMenu()" title="Opções de Backup" class="p-2.5 text-slate-600 dark:text-slate-300 hover:text-charcoal-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition flex items-center gap-1.5 text-sm font-medium">
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                        <span class="hidden md:inline">Backup</span>
+                    </button>
+                    <div id="backup-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-1.5 z-40">
+                        <button onclick="exportData(); toggleBackupMenu();" class="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                            <i data-lucide="download" class="w-3.5 h-3.5 text-brand-600"></i>
+                            Baixar Backup Completo (.json)
+                        </button>
+                        <label class="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer">
+                            <i data-lucide="upload" class="w-3.5 h-3.5 text-filament-500"></i>
+                            Restaurar Arquivo (.json)
+                            <input type="file" accept=".json" onchange="importData(event); toggleBackupMenu();" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Botão Principal -->
+                <button id="header-action-btn" onclick="openModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-3.5 sm:px-4 py-2.5 rounded-xl transition shadow-md shadow-brand-600/20 flex items-center gap-2 text-sm active:scale-95">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Novo Pedido</span>
+                    <span class="sm:hidden">Novo</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal (Tela) -->
+    <main class="no-print flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Dashboard de Finanças (KPI Cards) -->
+        <section aria-label="Dashboard Financeiro">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-brand-600 dark:text-blue-400"></i>
+                    Resumo Financeiro
+                </h2>
+                <span id="month-label" class="text-xs text-slate-500 dark:text-slate-400 font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2.5 py-0.5 rounded-full">Total Acumulado</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Faturamento Total -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:border-brand-500/40 transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Faturamento Bruto</span>
+                        <div class="p-2 bg-brand-50 dark:bg-blue-950/60 text-brand-600 dark:text-blue-400 rounded-xl">
+                            <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span id="kpi-revenue" class="text-2xl font-bold font-mono text-charcoal-900 dark:text-white">R$ 0,00</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Soma de todos os pedidos válidos</p>
+                </div>
+
+                <!-- Lucro Líquido Estimado -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:border-emerald-500/40 transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Lucro Líquido Real</span>
+                        <div class="p-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span id="kpi-profit" class="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">R$ 0,00</span>
+                        <span id="kpi-margin" class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">0%</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Faturamento menos pedidos & materiais</p>
+                </div>
+
+                <!-- Custos de Produção & Materiais -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:border-charcoal-800/30 transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">Custos Totais</span>
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 rounded-xl">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span id="kpi-cost" class="text-2xl font-bold font-mono text-charcoal-800 dark:text-slate-100">R$ 0,00</span>
+                    </div>
+                    <p id="kpi-filament" class="text-xs text-slate-400 mt-1">0g usados • R$ 0,00 em materiais</p>
+                </div>
+
+                <!-- A Receber / Em Produção -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs hover:border-filament-500/40 transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">A Receber (Pendentes)</span>
+                        <div class="p-2 bg-orange-50 dark:bg-orange-950/60 text-filament-500 dark:text-orange-400 rounded-xl">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span id="kpi-pending-value" class="text-2xl font-bold font-mono text-filament-600 dark:text-orange-400">R$ 0,00</span>
+                    </div>
+                    <p id="kpi-active-orders" class="text-xs text-slate-400 mt-1">0 pedidos aguardando pagamento</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navegação entre Abas -->
+        <nav aria-label="Abas do Sistema" class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <button id="tab-btn-orders" onclick="switchTab('orders')" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white shadow-sm flex items-center gap-2 transition">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Pedidos 3D</span>
+                <span id="tab-badge-orders" class="text-xs font-mono bg-white/20 text-white px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button id="tab-btn-materials" onclick="switchTab('materials')" class="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-charcoal-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-900 border border-transparent flex items-center gap-2 transition">
+                <i data-lucide="spool" class="w-4 h-4"></i>
+                <span>Custos & Materiais</span>
+                <span id="tab-badge-materials" class="text-xs font-mono bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">0</span>
+            </button>
+        </nav>
+
+        <!-- ABA 1: PEDIDOS 3D -->
+        <div id="tab-orders" class="space-y-6">
+            <!-- Barra de Filtros e Pesquisa -->
+            <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between shadow-xs">
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="search-input" onkeyup="renderOrders()" placeholder="Buscar por cliente, peça ou material..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-charcoal-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-600 focus:bg-white dark:focus:bg-slate-900 transition">
+                </div>
+
+                <div class="flex flex-wrap sm:flex-nowrap gap-2">
+                    <select id="filter-status" onchange="renderOrders()" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-800 dark:text-slate-200 focus:outline-none focus:border-brand-600">
+                        <option value="all">Todos os Status</option>
+                        <option value="Fila">Na Fila</option>
+                        <option value="Imprimindo">Imprimindo</option>
+                        <option value="Acabamento">Acabamento</option>
+                        <option value="Concluído">Concluído</option>
+                        <option value="Entregue">Entregue</option>
+                    </select>
+
+                    <select id="filter-payment" onchange="renderOrders()" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-800 dark:text-slate-200 focus:outline-none focus:border-brand-600">
+                        <option value="all">Pagamento (Todos)</option>
+                        <option value="Pago">Pago</option>
+                        <option value="50% Sinal">50% Sinal</option>
+                        <option value="Pendente">Pendente</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Lista de Pedidos -->
+            <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+                <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
+                    <h2 class="font-bold text-charcoal-800 dark:text-white flex items-center gap-2">
+                        <i data-lucide="printer" class="w-4 h-4 text-brand-600 dark:text-blue-400"></i>
+                        Fila de Pedidos 3D
+                    </h2>
+                    <span id="orders-count" class="text-xs font-mono bg-slate-200/80 dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 font-medium px-2.5 py-1 rounded-full">0 pedidos</span>
+                </div>
+
+                <!-- Tabela Responsiva -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <th class="py-3.5 px-4">Pedido / Peça</th>
+                                <th class="py-3.5 px-4">Cliente</th>
+                                <th class="py-3.5 px-4">Especificações</th>
+                                <th class="py-3.5 px-4">Status Produção</th>
+                                <th class="py-3.5 px-4">Financeiro</th>
+                                <th class="py-3.5 px-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-tbody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Estado Vazio -->
+                <div id="empty-state" class="hidden py-12 px-4 text-center">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                        <i data-lucide="package-open" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-charcoal-800 dark:text-slate-200 font-semibold">Nenhum pedido encontrado</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Clique em "Novo Pedido" para cadastrar sua primeira impressão 3D.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ABA 2: CUSTOS COM MATERIAIS E INSUMOS -->
+        <div id="tab-materials" class="hidden space-y-6">
+            <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between shadow-xs">
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="material-search-input" onkeyup="renderMaterials()" placeholder="Buscar material, marca, cor ou fornecedor..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-charcoal-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-filament-500 focus:bg-white dark:focus:bg-slate-900 transition">
+                </div>
+
+                <div class="flex flex-wrap sm:flex-nowrap gap-2">
+                    <select id="filter-material-cat" onchange="renderMaterials()" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-800 dark:text-slate-200 focus:outline-none focus:border-filament-500">
+                        <option value="all">Todas Categorias</option>
+                        <option value="Filamento">Filamentos</option>
+                        <option value="Resina">Resinas</option>
+                        <option value="Insumos/Acabamento">Insumos / Acabamento</option>
+                        <option value="Peças/Manutenção">Peças / Manutenção</option>
+                    </select>
+
+                    <button onclick="openMaterialModal()" class="bg-filament-500 hover:bg-filament-600 text-white font-semibold px-4 py-2.5 rounded-xl transition shadow-md shadow-filament-500/20 flex items-center justify-center gap-2 text-sm active:scale-95">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Registrar Custo</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Tabela de Custos de Materiais -->
+            <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+                <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 bg-slate-50/50 dark:bg-slate-800/40">
+                    <h2 class="font-bold text-charcoal-800 dark:text-white flex items-center gap-2">
+                        <i data-lucide="package" class="w-4 h-4 text-filament-500"></i>
+                        Registro de Compras & Materiais
+                    </h2>
+                    <div class="flex items-center gap-3">
+                        <span id="materials-total-badge" class="text-xs font-mono font-semibold bg-orange-50 dark:bg-orange-950/70 text-filament-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800/60 px-2.5 py-1 rounded-full">Total Investido: R$ 0,00</span>
+                        <span id="materials-count" class="text-xs font-mono bg-slate-200/80 dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 px-2.5 py-1 rounded-full">0 itens</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <th class="py-3.5 px-4">Material / Descrição</th>
+                                <th class="py-3.5 px-4">Categoria</th>
+                                <th class="py-3.5 px-4">Qtd / Peso</th>
+                                <th class="py-3.5 px-4">Custo por Grama</th>
+                                <th class="py-3.5 px-4">Valor Pago</th>
+                                <th class="py-3.5 px-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materials-tbody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Estado Vazio Materiais -->
+                <div id="materials-empty-state" class="hidden py-12 px-4 text-center">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-charcoal-800 dark:text-slate-200 font-semibold">Nenhum custo de material registrado</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Cadastre compras de filamentos, resinas, álcool isopropílico, bicos ou manutenção.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- LAYOUT EXCLUSIVO PARA EXPORTAÇÃO PROFISSIONAL EM PDF (Oculto na tela normal) -->
+    <div id="print-report-container" class="hidden p-8 max-w-4xl mx-auto bg-white text-charcoal-900">
+        <!-- Cabeçalho Oficial do Relatório -->
+        <div class="flex items-center justify-between border-b-2 border-charcoal-800 pb-5 mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-white border-2 border-charcoal-800 flex items-center justify-center p-1">
+                    <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="24" y="22" width="72" height="72" rx="10" fill="none" stroke="#1F2933" stroke-width="7"/>
+                        <line x1="24" y1="40" x2="96" y2="40" stroke="#1F2933" stroke-width="5"/>
+                        <path d="M36 94 L42 86 L78 86 L84 94" fill="#1F2933"/>
+                        <rect x="50" y="32" width="16" height="16" rx="3" fill="#1F2933"/>
+                        <polygon points="53,48 63,48 58,56" fill="#1F2933"/>
+                        <path d="M74 20 Q60 22 58 32" fill="none" stroke="#F97316" stroke-width="4.5" stroke-linecap="round"/>
+                        <path d="M58 56 C58 68, 38 64, 42 78 C45 86, 62 84, 60 76 C58 70, 50 74, 54 81 C58 87, 74 78, 82 68" fill="none" stroke="#F97316" stroke-width="4.2" stroke-linecap="round"/>
+                        <g transform="translate(66, 56)">
+                            <polygon points="16,2 30,10 30,26 16,34 2,26 2,10" fill="#ffffff" stroke="#1D4ED8" stroke-width="3.8" stroke-linejoin="round"/>
+                            <polyline points="2,10 16,18 30,10" fill="none" stroke="#1D4ED8" stroke-width="3.8" stroke-linejoin="round"/>
+                            <line x1="16" y1="18" x2="16" y2="34" stroke="#1D4ED8" stroke-width="3.8" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-charcoal-800">
+                        Luan <span class="text-brand-600">3D Studio</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Relatório Gerencial de Produção & Finanças</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="inline-block bg-brand-50 text-brand-700 border border-brand-200 text-xs font-bold px-3 py-1 rounded-full uppercase">Documento Oficial</span>
+                <p id="pdf-generated-date" class="text-xs text-slate-500 font-mono mt-1.5">Emitido em: --/--/----</p>
+            </div>
+        </div>
+
+        <!-- Resumo Executivo em Cards no PDF -->
+        <div class="grid grid-cols-4 gap-3 mb-6">
+            <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50">
+                <span class="text-[11px] font-bold uppercase text-slate-500">Faturamento Bruto</span>
+                <div id="pdf-revenue" class="text-lg font-extrabold font-mono text-charcoal-900 mt-1">R$ 0,00</div>
+            </div>
+            <div class="border border-emerald-200 rounded-xl p-3.5 bg-emerald-50/50">
+                <span class="text-[11px] font-bold uppercase text-emerald-700">Lucro Líquido Real</span>
+                <div id="pdf-profit" class="text-lg font-extrabold font-mono text-emerald-700 mt-1">R$ 0,00</div>
+            </div>
+            <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50">
+                <span class="text-[11px] font-bold uppercase text-slate-500">Custos Totais</span>
+                <div id="pdf-costs" class="text-lg font-extrabold font-mono text-charcoal-800 mt-1">R$ 0,00</div>
+            </div>
+            <div class="border border-orange-200 rounded-xl p-3.5 bg-orange-50/50">
+                <span class="text-[11px] font-bold uppercase text-filament-600">Saldo a Receber</span>
+                <div id="pdf-pending" class="text-lg font-extrabold font-mono text-filament-600 mt-1">R$ 0,00</div>
+            </div>
+        </div>
+
+        <!-- Tabela de Pedidos no PDF -->
+        <div class="mb-6">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-charcoal-800 border-l-4 border-brand-600 pl-2.5 mb-3">Detalhamento de Pedidos 3D</h2>
+            <table class="w-full text-left border-collapse text-xs border border-slate-200">
+                <thead>
+                    <tr class="bg-charcoal-800 text-white">
+                        <th class="py-2 px-3">ID</th>
+                        <th class="py-2 px-3">Cliente</th>
+                        <th class="py-2 px-3">Peça / Projeto</th>
+                        <th class="py-2 px-3">Material</th>
+                        <th class="py-2 px-3">Status</th>
+                        <th class="py-2 px-3">Pagamento</th>
+                        <th class="py-2 px-3 text-right">Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-orders-tbody" class="divide-y divide-slate-200"></tbody>
+            </table>
+        </div>
+
+        <!-- Tabela de Custos de Materiais no PDF -->
+        <div class="mb-8">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-charcoal-800 border-l-4 border-filament-500 pl-2.5 mb-3">Investimentos em Materiais & Insumos</h2>
+            <table class="w-full text-left border-collapse text-xs border border-slate-200">
+                <thead>
+                    <tr class="bg-slate-100 text-charcoal-800 border-b border-slate-300">
+                        <th class="py-2 px-3">Data</th>
+                        <th class="py-2 px-3">Categoria</th>
+                        <th class="py-2 px-3">Descrição do Material</th>
+                        <th class="py-2 px-3">Peso/Qtd</th>
+                        <th class="py-2 px-3 text-right">Valor Pago</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-materials-tbody" class="divide-y divide-slate-200"></tbody>
+            </table>
+        </div>
+
+        <!-- Rodapé Oficial do PDF -->
+        <div class="border-t border-slate-200 pt-4 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Gestão LUAN 3D STUDIO • Sistema Integrado de Impressão 3D</span>
+            <span>Relatório gerado automaticamente</span>
+        </div>
+    </div>
+
+    <!-- Modal de Novo / Editar Pedido -->
+    <div id="order-modal" class="no-print fixed inset-0 z-50 hidden items-center justify-center p-4 bg-charcoal-900/60 backdrop-blur-xs">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+                <h3 id="modal-title" class="font-bold text-lg text-charcoal-800 dark:text-white">Novo Pedido 3D</h3>
+                <button onclick="closeModal()" class="p-1.5 text-slate-400 hover:text-charcoal-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="order-form" onsubmit="saveOrder(event)" class="p-6 space-y-4">
+                <input type="hidden" id="order-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome do Cliente *</label>
+                        <input type="text" id="client-name" required placeholder="Ex: João Silva" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Contato / WhatsApp</label>
+                        <input type="text" id="client-contact" placeholder="(85) 99999-9999" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome da Peça / Projeto *</label>
+                        <input type="text" id="part-name" required placeholder="Ex: Action Figure Goku 20cm" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Quantidade *</label>
+                        <input type="number" id="part-qty" min="1" value="1" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                    </div>
+                </div>
+
+                <!-- Especificações Técnicas 3D -->
+                <div class="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-blue-400 flex items-center gap-1.5">
+                        <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Parâmetros de Impressão
+                    </span>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Material</label>
+                            <select id="material" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                                <option value="PLA">PLA</option>
+                                <option value="PETG">PETG</option>
+                                <option value="ABS">ABS</option>
+                                <option value="TPU">TPU (Flex)</option>
+                                <option value="Resina">Resina</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Cor</label>
+                            <input type="text" id="color" placeholder="Preto" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Peso Total (g)</label>
+                            <input type="number" id="weight" min="0" step="1" placeholder="120" oninput="autoCalcCost()" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm text-charcoal-900 dark:text-white font-mono focus:outline-none focus:border-brand-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Tempo (horas)</label>
+                            <input type="number" id="print-time" min="0" step="0.5" placeholder="4.5" oninput="autoCalcCost()" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm text-charcoal-900 dark:text-white font-mono focus:outline-none focus:border-brand-600">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valores Financeiros -->
+                <div class="bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/80 dark:border-orange-900/50 rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-filament-600 dark:text-orange-400 flex items-center gap-1.5">
+                            <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Valores & Finanças
+                        </span>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">Custo auto-estimado (R$0,12/g + R$1,50/h)</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Custo de Produção (R$) *</label>
+                            <input type="number" id="cost-price" step="0.01" min="0" required placeholder="15.00" oninput="updateProfitPreview()" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-charcoal-900 dark:text-white font-mono focus:outline-none focus:border-brand-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">Valor Cobrado do Cliente (R$) *</label>
+                            <input type="number" id="sale-price" step="0.01" min="0" required placeholder="65.00" oninput="updateProfitPreview()" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-charcoal-900 dark:text-white font-mono focus:outline-none focus:border-brand-600">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-1 text-xs">
+                        <span class="text-slate-600 dark:text-slate-400 font-medium">Lucro estimado neste pedido:</span>
+                        <span id="modal-profit-preview" class="font-mono font-bold text-emerald-600 dark:text-emerald-400">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <!-- Status e Prazo -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Status Produção</label>
+                        <select id="status" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                            <option value="Fila">Na Fila</option>
+                            <option value="Imprimindo">Imprimindo</option>
+                            <option value="Acabamento">Acabamento</option>
+                            <option value="Concluído">Concluído</option>
+                            <option value="Entregue">Entregue</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Status Pagamento</label>
+                        <select id="payment-status" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                            <option value="Pendente">Pendente</option>
+                            <option value="50% Sinal">50% Sinal</option>
+                            <option value="Pago">Pago</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Data de Entrega</label>
+                        <input type="date" id="due-date" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-brand-600">
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 transition">Salvar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Novo / Editar Custo de Material -->
+    <div id="material-modal" class="no-print fixed inset-0 z-50 hidden items-center justify-center p-4 bg-charcoal-900/60 backdrop-blur-xs">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
+                <h3 id="material-modal-title" class="font-bold text-lg text-charcoal-800 dark:text-white">Registrar Custo de Material</h3>
+                <button onclick="closeMaterialModal()" class="p-1.5 text-slate-400 hover:text-charcoal-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="material-form" onsubmit="saveMaterial(event)" class="p-6 space-y-4">
+                <input type="hidden" id="mat-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Categoria *</label>
+                        <select id="mat-category" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-filament-500">
+                            <option value="Filamento">Filamento (Rolo)</option>
+                            <option value="Resina">Resina (Litro/Kg)</option>
+                            <option value="Insumos/Acabamento">Insumos / Acabamento</option>
+                            <option value="Peças/Manutenção">Peças / Manutenção</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Data da Compra *</label>
+                        <input type="date" id="mat-date" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-filament-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome / Descrição do Item *</label>
+                    <input type="text" id="mat-name" required placeholder="Ex: Filamento PLA Preto Fosco - Voolt3D" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-filament-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Fornecedor / Loja</label>
+                        <input type="text" id="mat-supplier" placeholder="Ex: Mercado Livre / Shopee" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white focus:outline-none focus:border-filament-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Peso / Quantidade (g ou un)</label>
+                        <input type="number" id="mat-weight" min="0" step="1" placeholder="1000" oninput="updateCostPerGramPreview()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-charcoal-900 dark:text-white font-mono focus:outline-none focus:border-filament-500">
+                    </div>
+                </div>
+
+                <div class="bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/80 dark:border-orange-900/50 rounded-xl p-4 space-y-2">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300">Valor Total Pago (R$) *</label>
+                    <input type="number" id="mat-cost" step="0.01" min="0" required placeholder="115.00" oninput="updateCostPerGramPreview()" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-base text-charcoal-900 dark:text-white font-mono focus:outline-none focus:border-filament-500">
+                    <div class="flex items-center justify-between pt-1 text-xs">
+                        <span class="text-slate-600 dark:text-slate-400">Custo calculado por grama:</span>
+                        <span id="mat-per-gram-preview" class="font-mono font-bold text-filament-600 dark:text-orange-400">R$ 0,00 / g</span>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+                    <button type="button" onclick="closeMaterialModal()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-filament-500 hover:bg-filament-600 text-white shadow-md shadow-filament-500/20 transition">Salvar Custo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="delete-modal" class="no-print fixed inset-0 z-50 hidden items-center justify-center p-4 bg-charcoal-900/60 backdrop-blur-xs">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+                <i data-lucide="trash-2" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h3 id="delete-modal-title" class="font-bold text-lg text-charcoal-900 dark:text-white">Excluir Registro?</h3>
+                <p id="delete-modal-desc" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Essa ação removerá o item e atualizará o dashboard financeiro.</p>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-charcoal-800 dark:text-slate-200 transition">Cancelar</button>
+                <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white transition">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Opções de Exportação de PDF -->
+    <div id="pdf-options-modal" class="no-print fixed inset-0 z-50 hidden items-center justify-center p-4 bg-charcoal-900/60 backdrop-blur-xs">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 bg-orange-50 dark:bg-orange-950/60 text-filament-500 rounded-xl">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-charcoal-900 dark:text-white">Exportar Pedidos em PDF</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Escolha quais pedidos incluir no documento</p>
+                    </div>
+                </div>
+                <button onclick="closePdfOptionsModal()" class="p-1.5 text-slate-400 hover:text-charcoal-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2.5">
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 cursor-pointer hover:border-brand-600 transition">
+                    <input type="radio" name="pdf-filter" value="fila_imprimindo" checked class="w-4 h-4 text-brand-600 focus:ring-brand-600">
+                    <div>
+                        <div class="text-sm font-semibold text-charcoal-900 dark:text-white">Na Fila e Imprimindo (Produção Ativa)</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Exporta somente os pedidos em produção e aguardando</div>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 cursor-pointer hover:border-brand-600 transition">
+                    <input type="radio" name="pdf-filter" value="Fila" class="w-4 h-4 text-brand-600 focus:ring-brand-600">
+                    <div>
+                        <div class="text-sm font-semibold text-charcoal-900 dark:text-white">Apenas Na Fila</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Somente pedidos aguardando início da impressão</div>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 cursor-pointer hover:border-brand-600 transition">
+                    <input type="radio" name="pdf-filter" value="Imprimindo" class="w-4 h-4 text-brand-600 focus:ring-brand-600">
+                    <div>
+                        <div class="text-sm font-semibold text-charcoal-900 dark:text-white">Apenas Imprimindo</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Somente peças atualmente nas impressoras</div>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 cursor-pointer hover:border-brand-600 transition">
+                    <input type="radio" name="pdf-filter" value="all" class="w-4 h-4 text-brand-600 focus:ring-brand-600">
+                    <div>
+                        <div class="text-sm font-semibold text-charcoal-900 dark:text-white">Todos os Pedidos</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Lista completa independente do status</div>
+                    </div>
+                </label>
+            </div>
+
+            <div class="flex gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <button onclick="closePdfOptionsModal()" class="flex-1 py-2.5 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-charcoal-800 dark:text-slate-200 transition">Cancelar</button>
+                <button onclick="confirmAndExportPDF()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 flex items-center justify-center gap-2 transition">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Baixar PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Principal + Sincronização Nuvem (Firebase Firestore) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Dados iniciais de exemplo
+        const initialSampleData = [
+            {
+                id: 'ORD-101',
+                clientName: 'Carlos Eduardo',
+                clientContact: '(85) 98812-3456',
+                partName: 'Suporte Headset Minimalista',
+                qty: 1,
+                material: 'PLA',
+                color: 'Preto Fosco',
+                weight: 145,
+                printTime: 4.5,
+                costPrice: 24.15,
+                salePrice: 75.00,
+                status: 'Imprimindo',
+                paymentStatus: '50% Sinal',
+                dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'ORD-102',
+                clientName: 'Mariana Costa',
+                clientContact: '(85) 99123-9876',
+                partName: 'Vaso Geométrico Espiral',
+                qty: 2,
+                material: 'PETG',
+                color: 'Branco',
+                weight: 220,
+                printTime: 6.0,
+                costPrice: 35.40,
+                salePrice: 110.00,
+                status: 'Entregue',
+                paymentStatus: 'Pago',
+                dueDate: new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        const initialMaterialsData = [
+            {
+                id: 'MAT-201',
+                category: 'Filamento',
+                name: 'PLA Preto Fosco 1.75mm (1kg)',
+                supplier: 'Voolt3D',
+                weight: 1000,
+                cost: 115.00,
+                date: new Date().toISOString().split('T')[0]
+            },
+            {
+                id: 'MAT-202',
+                category: 'Filamento',
+                name: 'PETG Branco 1.75mm (1kg)',
+                supplier: '3D Fila',
+                weight: 1000,
+                cost: 129.90,
+                date: new Date().toISOString().split('T')[0]
+            }
+        ];
+
+        let orders = [];
+        let materials = [];
+        let currentTab = 'orders';
+        let itemToDelete = null;
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'luan-3d-studio-app';
+
+        // Gerenciamento de Tema (Claro / Escuro)
+        function initTheme() {
+            const savedTheme = localStorage.getItem('luan_3d_theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedTheme ? savedTheme === 'dark' : prefersDark;
+            applyTheme(isDark);
+        }
+
+        function applyTheme(isDark) {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (isDark) {
+                html.classList.add('dark');
+                if (icon) icon.setAttribute('data-lucide', 'sun');
+            } else {
+                html.classList.remove('dark');
+                if (icon) icon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        }
+
+        window.toggleTheme = function () {
+            const isDark = !document.documentElement.classList.contains('dark');
+            localStorage.setItem('luan_3d_theme', isDark ? 'dark' : 'light');
+            applyTheme(isDark);
+        };
+
+        // Inicialização Firebase Firestore (Sincronização PC & Tablet)
+        async function initCloudSync() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        const cred = await signInWithCustomToken(auth, __initial_auth_token);
+                        currentUser = cred.user;
+                    } else {
+                        const cred = await signInAnonymously(auth);
+                        currentUser = cred.user;
+                    }
+
+                    if (currentUser) {
+                        setupFirestoreListeners();
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn('Modo offline ativado:', err);
+            }
+
+            // Fallback caso esteja rodando localmente sem nuvem configurada
+            updateSyncIndicator(false);
+            loadFallbackData();
+        }
+
+        function updateSyncIndicator(online) {
+            const dot = document.getElementById('sync-dot');
+            const text = document.getElementById('sync-status-text');
+            if (online) {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse';
+                text.textContent = 'Nuvem Sincronizada (PC & Tablet)';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-filament-500 inline-block';
+                text.textContent = 'Modo Local (Use Backup para transferir)';
+            }
+        }
+
+        function setupFirestoreListeners() {
+            updateSyncIndicator(true);
+            const ordersCol = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+            const materialsCol = collection(db, 'artifacts', appId, 'public', 'data', 'materials');
+
+            let initialOrdersChecked = false;
+            let initialMaterialsChecked = false;
+
+            onSnapshot(ordersCol, async (snapshot) => {
+                if (snapshot.empty && !initialOrdersChecked) {
+                    initialOrdersChecked = true;
+                    for (const item of initialSampleData) {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', item.id), item);
+                    }
+                    return;
+                }
+                initialOrdersChecked = true;
+                orders = snapshot.docs.map(d => d.data()).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+                renderAll();
+            }, (error) => {
+                console.error('Erro ao sincronizar pedidos:', error);
+                updateSyncIndicator(false);
+            });
+
+            onSnapshot(materialsCol, async (snapshot) => {
+                if (snapshot.empty && !initialMaterialsChecked) {
+                    initialMaterialsChecked = true;
+                    for (const mat of initialMaterialsData) {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'materials', mat.id), mat);
+                    }
+                    return;
+                }
+                initialMaterialsChecked = true;
+                materials = snapshot.docs.map(d => d.data()).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                renderAll();
+            }, (error) => {
+                console.error('Erro ao sincronizar materiais:', error);
+            });
+        }
+
+        function loadFallbackData() {
+            orders = [...initialSampleData];
+            materials = [...initialMaterialsData];
+            renderAll();
+        }
+
+        async function persistOrder(orderData) {
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderData.id), orderData);
+            } else {
+                const idx = orders.findIndex(o => o.id === orderData.id);
+                if (idx !== -1) orders[idx] = orderData;
+                else orders.unshift(orderData);
+                renderAll();
+            }
+        }
+
+        async function removeOrder(id) {
+            if (db && currentUser) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', id));
+            } else {
+                orders = orders.filter(o => o.id !== id);
+                renderAll();
+            }
+        }
+
+        async function persistMaterial(matData) {
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'materials', matData.id), matData);
+            } else {
+                const idx = materials.findIndex(m => m.id === matData.id);
+                if (idx !== -1) materials[idx] = matData;
+                else materials.unshift(matData);
+                renderAll();
+            }
+        }
+
+        async function removeMaterial(id) {
+            if (db && currentUser) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'materials', id));
+            } else {
+                materials = materials.filter(m => m.id !== id);
+                renderAll();
+            }
+        }
+
+        window.onload = function () {
+            initTheme();
+            initCloudSync();
+            lucide.createIcons();
+        };
+
+        function formatCurrency(val) {
+            return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        window.toggleBackupMenu = function () {
+            document.getElementById('backup-dropdown').classList.toggle('hidden');
+        };
+
+        // Alternância entre Abas
+        window.switchTab = function (tab) {
+            currentTab = tab;
+            const ordersTab = document.getElementById('tab-orders');
+            const materialsTab = document.getElementById('tab-materials');
+            const btnOrders = document.getElementById('tab-btn-orders');
+            const btnMaterials = document.getElementById('tab-btn-materials');
+            const headerBtn = document.getElementById('header-action-btn');
+
+            if (tab === 'orders') {
+                ordersTab.classList.remove('hidden');
+                materialsTab.classList.add('hidden');
+
+                btnOrders.className = 'px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white shadow-sm flex items-center gap-2 transition';
+                btnMaterials.className = 'px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-charcoal-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-900 border border-transparent flex items-center gap-2 transition';
+
+                headerBtn.onclick = () => openModal();
+                headerBtn.className = 'bg-brand-600 hover:bg-brand-700 text-white font-semibold px-3.5 sm:px-4 py-2.5 rounded-xl transition shadow-md shadow-brand-600/20 flex items-center gap-2 text-sm active:scale-95';
+                headerBtn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i><span class="hidden sm:inline">Novo Pedido</span><span class="sm:hidden">Novo</span>';
+            } else {
+                ordersTab.classList.add('hidden');
+                materialsTab.classList.remove('hidden');
+
+                btnMaterials.className = 'px-4 py-2.5 rounded-xl text-sm font-semibold bg-filament-500 text-white shadow-sm flex items-center gap-2 transition';
+                btnOrders.className = 'px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-charcoal-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-900 border border-transparent flex items-center gap-2 transition';
+
+                headerBtn.onclick = () => openMaterialModal();
+                headerBtn.className = 'bg-filament-500 hover:bg-filament-600 text-white font-semibold px-3.5 sm:px-4 py-2.5 rounded-xl transition shadow-md shadow-filament-500/20 flex items-center gap-2 text-sm active:scale-95';
+                headerBtn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i><span class="hidden sm:inline">Novo Material</span><span class="sm:hidden">Novo</span>';
+            }
+            lucide.createIcons();
+        };
+
+        function renderAll() {
+            updateDashboard();
+            renderOrders();
+            renderMaterials();
+            document.getElementById('tab-badge-orders').textContent = orders.length;
+            document.getElementById('tab-badge-materials').textContent = materials.length;
+        }
+
+        function updateDashboard() {
+            let totalRevenue = 0;
+            let ordersProductionCost = 0;
+            let totalFilament = 0;
+            let pendingValue = 0;
+            let pendingCount = 0;
+
+            orders.forEach(order => {
+                const sale = Number(order.salePrice) || 0;
+                const cost = Number(order.costPrice) || 0;
+                const weight = Number(order.weight) || 0;
+
+                totalRevenue += sale;
+                ordersProductionCost += cost;
+                totalFilament += weight;
+
+                if (order.paymentStatus === 'Pendente') {
+                    pendingValue += sale;
+                    pendingCount++;
+                } else if (order.paymentStatus === '50% Sinal') {
+                    pendingValue += sale / 2;
+                    pendingCount++;
+                }
+            });
+
+            const totalMaterialsCost = materials.reduce((acc, m) => acc + (Number(m.cost) || 0), 0);
+            const combinedCosts = ordersProductionCost + totalMaterialsCost;
+            const netProfit = totalRevenue - combinedCosts;
+            const margin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(0) : 0;
+
+            document.getElementById('kpi-revenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('kpi-profit').textContent = formatCurrency(netProfit);
+            document.getElementById('kpi-profit').className = netProfit >= 0
+                ? 'text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400'
+                : 'text-2xl font-bold font-mono text-rose-600 dark:text-rose-400';
+            document.getElementById('kpi-margin').textContent = `${margin}%`;
+            document.getElementById('kpi-cost').textContent = formatCurrency(combinedCosts);
+            document.getElementById('kpi-filament').textContent = `${totalFilament.toLocaleString('pt-BR')}g usados • ${formatCurrency(totalMaterialsCost)} em materiais`;
+            document.getElementById('kpi-pending-value').textContent = formatCurrency(pendingValue);
+            document.getElementById('kpi-active-orders').textContent = `${pendingCount} pedido(s) com saldo a receber`;
+        }
+
+        window.renderOrders = function () {
+            const tbody = document.getElementById('orders-tbody');
+            const emptyState = document.getElementById('empty-state');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
+            const paymentFilter = document.getElementById('filter-payment').value;
+
+            const filtered = orders.filter(o => {
+                const matchesSearch =
+                    o.clientName.toLowerCase().includes(search) ||
+                    o.partName.toLowerCase().includes(search) ||
+                    o.material.toLowerCase().includes(search) ||
+                    o.id.toLowerCase().includes(search);
+
+                const matchesStatus = statusFilter === 'all' || o.status === statusFilter;
+                const matchesPayment = paymentFilter === 'all' || o.paymentStatus === paymentFilter;
+
+                return matchesSearch && matchesStatus && matchesPayment;
+            });
+
+            document.getElementById('orders-count').textContent = `${filtered.length} pedido(s)`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            tbody.innerHTML = filtered.map(order => {
+                const profit = (Number(order.salePrice) || 0) - (Number(order.costPrice) || 0);
+                const statusBadge = getStatusBadge(order.status);
+                const paymentBadge = getPaymentBadge(order.paymentStatus);
+                const formattedDate = order.dueDate ? order.dueDate.split('-').reverse().join('/') : 'Sem prazo';
+
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
+                        <td class="py-3.5 px-4">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono font-semibold text-brand-600 dark:text-blue-400 bg-brand-50 dark:bg-blue-950/70 px-2 py-0.5 rounded">${order.id}</span>
+                                <span class="font-semibold text-charcoal-900 dark:text-white">${escapeHtml(order.partName)}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
+                                <span>Qtd: <strong class="text-charcoal-800 dark:text-slate-200">${order.qty}x</strong></span>
+                                <span>•</span>
+                                <span>Entrega: ${formattedDate}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-medium text-charcoal-800 dark:text-slate-200">${escapeHtml(order.clientName)}</div>
+                            <div class="text-xs text-slate-400">${escapeHtml(order.clientContact || 'Sem contato')}</div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                                ${order.material} ${order.color ? '• ' + escapeHtml(order.color) : ''}
+                            </span>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1">
+                                ${order.weight || 0}g • ${order.printTime || 0}h
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <select onchange="quickUpdateStatus('${order.id}', this.value)" class="text-xs font-semibold rounded-lg px-2.5 py-1.5 border cursor-pointer focus:outline-none ${statusBadge}">
+                                <option value="Fila" ${order.status === 'Fila' ? 'selected' : ''} class="bg-white dark:bg-slate-900 text-charcoal-900 dark:text-white">Na Fila</option>
+                                <option value="Imprimindo" ${order.status === 'Imprimindo' ? 'selected' : ''} class="bg-white dark:bg-slate-900 text-charcoal-900 dark:text-white">Imprimindo</option>
+                                <option value="Acabamento" ${order.status === 'Acabamento' ? 'selected' : ''} class="bg-white dark:bg-slate-900 text-charcoal-900 dark:text-white">Acabamento</option>
+                                <option value="Concluído" ${order.status === 'Concluído' ? 'selected' : ''} class="bg-white dark:bg-slate-900 text-charcoal-900 dark:text-white">Concluído</option>
+                                <option value="Entregue" ${order.status === 'Entregue' ? 'selected' : ''} class="bg-white dark:bg-slate-900 text-charcoal-900 dark:text-white">Entregue</option>
+                            </select>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-mono font-bold text-charcoal-900 dark:text-white">${formatCurrency(order.salePrice)}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <button onclick="cyclePaymentStatus('${order.id}')" title="Clique para alternar status de pagamento" class="text-[11px] font-semibold px-2 py-0.5 rounded-full border transition ${paymentBadge}">
+                                    ${order.paymentStatus}
+                                </button>
+                                <span class="text-[11px] font-mono font-semibold text-emerald-600 dark:text-emerald-400">+${formatCurrency(profit)}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button onclick="editOrder('${order.id}')" title="Editar Pedido" class="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-blue-400 hover:bg-brand-50 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="promptDelete('${order.id}')" title="Excluir Pedido" class="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        };
+
+        // Renderização da Tabela de Custos & Materiais
+        window.renderMaterials = function () {
+            const tbody = document.getElementById('materials-tbody');
+            const emptyState = document.getElementById('materials-empty-state');
+            const search = document.getElementById('material-search-input').value.toLowerCase();
+            const catFilter = document.getElementById('filter-material-cat').value;
+
+            const filtered = materials.filter(m => {
+                const matchesSearch =
+                    m.name.toLowerCase().includes(search) ||
+                    (m.supplier && m.supplier.toLowerCase().includes(search)) ||
+                    m.category.toLowerCase().includes(search);
+                const matchesCat = catFilter === 'all' || m.category === catFilter;
+                return matchesSearch && matchesCat;
+            });
+
+            const totalSpent = materials.reduce((acc, m) => acc + (Number(m.cost) || 0), 0);
+            document.getElementById('materials-total-badge').textContent = `Total Investido: ${formatCurrency(totalSpent)}`;
+            document.getElementById('materials-count').textContent = `${filtered.length} item(ns)`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            tbody.innerHTML = filtered.map(mat => {
+                const formattedDate = mat.date ? mat.date.split('-').reverse().join('/') : '-';
+                const costPerGram = mat.weight > 0 ? `R$ ${(mat.cost / mat.weight).toFixed(3)} / g` : 'N/A';
+
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                        <td class="py-3.5 px-4">
+                            <div class="font-semibold text-charcoal-900 dark:text-white">${escapeHtml(mat.name)}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                ${mat.supplier ? `Loja: ${escapeHtml(mat.supplier)} • ` : ''}Compra em: ${formattedDate}
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 dark:bg-orange-950/60 text-filament-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+                                ${escapeHtml(mat.category)}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 font-mono text-xs text-charcoal-800 dark:text-slate-200">
+                            ${mat.weight > 0 ? `${mat.weight.toLocaleString('pt-BR')} g / un` : '-'}
+                        </td>
+                        <td class="py-3.5 px-4 font-mono text-xs text-slate-600 dark:text-slate-300">
+                            ${costPerGram}
+                        </td>
+                        <td class="py-3.5 px-4 font-mono font-bold text-charcoal-900 dark:text-white">
+                            ${formatCurrency(mat.cost)}
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button onclick="editMaterial('${mat.id}')" title="Editar Material" class="p-2 text-slate-400 hover:text-filament-500 hover:bg-orange-50 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="promptDeleteMaterial('${mat.id}')" title="Excluir Material" class="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        };
+
+        // Controles do Modal de Exportação PDF
+        window.openPdfOptionsModal = function () {
+            const modal = document.getElementById('pdf-options-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        };
+
+        window.closePdfOptionsModal = function () {
+            const modal = document.getElementById('pdf-options-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        window.confirmAndExportPDF = function () {
+            const selectedRadio = document.querySelector('input[name="pdf-filter"]:checked');
+            const filterType = selectedRadio ? selectedRadio.value : 'fila_imprimindo';
+            closePdfOptionsModal();
+            exportProfessionalPDF(filterType);
+        };
+
+        // Geração Vetorial Nativa de PDF (Somente Pedidos filtrados + Faturamento Bruto)
+        window.exportProfessionalPDF = function (filterType = 'fila_imprimindo') {
+            try {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    showToast('Biblioteca PDF carregando, tente novamente.');
+                    return;
+                }
+
+                let filteredOrders = [];
+                let filterLabel = '';
+
+                if (filterType === 'Fila') {
+                    filteredOrders = orders.filter(o => o.status === 'Fila');
+                    filterLabel = 'Pedidos Na Fila';
+                } else if (filterType === 'Imprimindo') {
+                    filteredOrders = orders.filter(o => o.status === 'Imprimindo');
+                    filterLabel = 'Pedidos Imprimindo';
+                } else if (filterType === 'fila_imprimindo') {
+                    filteredOrders = orders.filter(o => o.status === 'Fila' || o.status === 'Imprimindo');
+                    filterLabel = 'Pedidos Na Fila & Imprimindo';
+                } else {
+                    filteredOrders = [...orders];
+                    filterLabel = 'Todos os Pedidos';
+                }
+
+                if (filteredOrders.length === 0) {
+                    showToast(`Nenhum pedido encontrado em "${filterLabel}".`);
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const docPDF = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('pt-BR');
+                const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                const darkSlate = [31, 41, 51];
+                const brandBlue = [29, 78, 216];
+                const filamentOrange = [249, 115, 22];
+                const mutedGray = [100, 116, 139];
+
+                // Logo vetorial no cabeçalho do PDF
+                docPDF.setDrawColor(...darkSlate);
+                docPDF.setFillColor(255, 255, 255);
+                docPDF.setLineWidth(0.8);
+                docPDF.circle(22, 22, 9, 'FD');
+
+                docPDF.setLineWidth(0.7);
+                docPDF.roundedRect(16.5, 16.5, 11, 11, 1.5, 1.5, 'S');
+                docPDF.line(16.5, 19.5, 27.5, 19.5);
+                docPDF.setFillColor(...darkSlate);
+                docPDF.rect(20.5, 18.2, 3, 2.5, 'F');
+                docPDF.setDrawColor(...filamentOrange);
+                docPDF.setLineWidth(0.6);
+                docPDF.line(22, 21, 20.5, 24.5);
+                docPDF.setDrawColor(...brandBlue);
+                docPDF.setFillColor(255, 255, 255);
+                docPDF.rect(22.5, 22.2, 3.8, 3.8, 'FD');
+
+                // Título Principal
+                docPDF.setFont('helvetica', 'bold');
+                docPDF.setFontSize(20);
+                docPDF.setTextColor(...darkSlate);
+                docPDF.text('Luan', 35, 21);
+                const luanWidth = docPDF.getTextWidth('Luan ');
+                docPDF.setTextColor(...brandBlue);
+                docPDF.text('3D Studio', 35 + luanWidth, 21);
+
+                docPDF.setFont('helvetica', 'normal');
+                docPDF.setFontSize(9);
+                docPDF.setTextColor(...mutedGray);
+                docPDF.text(`RELATÓRIO DE PRODUÇÃO • ${filterLabel.toUpperCase()}`, 35, 26.5);
+
+                docPDF.setFont('helvetica', 'bold');
+                docPDF.setFontSize(8);
+                docPDF.setTextColor(...brandBlue);
+                docPDF.text('DOCUMENTO OFICIAL', 196, 19, { align: 'right' });
+                docPDF.setFont('helvetica', 'normal');
+                docPDF.setTextColor(...mutedGray);
+                docPDF.text(`Emitido em: ${dateStr} às ${timeStr}`, 196, 24.5, { align: 'right' });
+
+                docPDF.setDrawColor(...darkSlate);
+                docPDF.setLineWidth(0.6);
+                docPDF.line(14, 34, 196, 34);
+
+                // Card único financeiro: Faturamento Bruto
+                const totalGrossRevenue = filteredOrders.reduce((acc, o) => acc + (Number(o.salePrice) || 0), 0);
+
+                docPDF.setFillColor(239, 246, 255);
+                docPDF.setDrawColor(191, 219, 254);
+                docPDF.setLineWidth(0.4);
+                docPDF.roundedRect(14, 39, 182, 20, 2.5, 2.5, 'FD');
+
+                docPDF.setFont('helvetica', 'bold');
+                docPDF.setFontSize(8.5);
+                docPDF.setTextColor(...brandBlue);
+                docPDF.text(`FATURAMENTO BRUTO (${filterLabel.toUpperCase()})`, 19, 46);
+
+                docPDF.setFontSize(15);
+                docPDF.setTextColor(...darkSlate);
+                docPDF.text(formatCurrency(totalGrossRevenue), 19, 54.5);
+
+                docPDF.setFont('helvetica', 'normal');
+                docPDF.setFontSize(8.5);
+                docPDF.setTextColor(...mutedGray);
+                docPDF.text(`${filteredOrders.length} pedido(s) incluído(s) neste relatório`, 191, 51, { align: 'right' });
+
+                // Seção da Tabela de Pedidos
+                docPDF.setFillColor(...brandBlue);
+                docPDF.rect(14, 66, 1.8, 5, 'F');
+                docPDF.setFont('helvetica', 'bold');
+                docPDF.setFontSize(10.5);
+                docPDF.setTextColor(...darkSlate);
+                docPDF.text(`LISTA DE PEDIDOS (${filterLabel.toUpperCase()})`, 18, 70);
+
+                const orderRows = filteredOrders.map(o => [
+                    o.id,
+                    o.clientName,
+                    `${o.partName} (${o.qty}x)`,
+                    `${o.material}${o.color ? ' • ' + o.color : ''}`,
+                    o.status,
+                    o.paymentStatus,
+                    formatCurrency(o.salePrice)
+                ]);
+
+                docPDF.autoTable({
+                    startY: 73,
+                    head: [['ID', 'Cliente', 'Peça / Projeto', 'Material', 'Status', 'Pagamento', 'Valor']],
+                    body: orderRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: darkSlate, textColor: [255, 255, 255], fontSize: 8, fontStyle: 'bold' },
+                    bodyStyles: { fontSize: 8, textColor: [30, 41, 59] },
+                    alternateRowStyles: { fillColor: [248, 250, 252] },
+                    columnStyles: {
+                        0: { fontStyle: 'bold', cellWidth: 20 },
+                        6: { halign: 'right', fontStyle: 'bold' }
+                    },
+                    margin: { left: 14, right: 14 }
+                });
+
+                // Rodapé em todas as páginas
+                const pageCount = docPDF.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    docPDF.setPage(i);
+                    docPDF.setDrawColor(226, 232, 240);
+                    docPDF.setLineWidth(0.3);
+                    docPDF.line(14, 282, 196, 282);
+                    docPDF.setFont('helvetica', 'normal');
+                    docPDF.setFontSize(7.5);
+                    docPDF.setTextColor(...mutedGray);
+                    docPDF.text('Gestão LUAN 3D STUDIO • Controle de Pedidos e Impressão 3D', 14, 287);
+                    docPDF.text(`Página ${i} de ${pageCount}`, 196, 287, { align: 'right' });
+                }
+
+                const fileTag = filterType === 'Fila' ? 'Na_Fila' : filterType === 'Imprimindo' ? 'Imprimindo' : filterType === 'fila_imprimindo' ? 'Fila_e_Imprimindo' : 'Todos';
+                docPDF.save(`Pedidos_Luan_3D_Studio_${fileTag}_${now.toISOString().split('T')[0]}.pdf`);
+                showToast('PDF de pedidos baixado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                showToast('Erro ao gerar o PDF. Tente novamente.');
+            }
+        };
+
+        // Modais de Pedidos
+        window.openModal = function (order = null) {
+            const modal = document.getElementById('order-modal');
+            const form = document.getElementById('order-form');
+            form.reset();
+
+            if (order) {
+                document.getElementById('modal-title').textContent = `Editar Pedido ${order.id}`;
+                document.getElementById('order-id').value = order.id;
+                document.getElementById('client-name').value = order.clientName;
+                document.getElementById('client-contact').value = order.clientContact || '';
+                document.getElementById('part-name').value = order.partName;
+                document.getElementById('part-qty').value = order.qty;
+                document.getElementById('material').value = order.material;
+                document.getElementById('color').value = order.color || '';
+                document.getElementById('weight').value = order.weight || '';
+                document.getElementById('print-time').value = order.printTime || '';
+                document.getElementById('cost-price').value = order.costPrice;
+                document.getElementById('sale-price').value = order.salePrice;
+                document.getElementById('status').value = order.status;
+                document.getElementById('payment-status').value = order.paymentStatus;
+                document.getElementById('due-date').value = order.dueDate || '';
+            } else {
+                document.getElementById('modal-title').textContent = 'Novo Pedido 3D';
+                document.getElementById('order-id').value = '';
+                document.getElementById('due-date').value = new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0];
+            }
+
+            updateProfitPreview();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeModal = function () {
+            const modal = document.getElementById('order-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        window.autoCalcCost = function () {
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
+            const time = parseFloat(document.getElementById('print-time').value) || 0;
+            if (weight > 0 || time > 0) {
+                const estimatedCost = (weight * 0.12) + (time * 1.50);
+                document.getElementById('cost-price').value = estimatedCost.toFixed(2);
+                updateProfitPreview();
+            }
+        };
+
+        window.updateProfitPreview = function () {
+            const cost = parseFloat(document.getElementById('cost-price').value) || 0;
+            const sale = parseFloat(document.getElementById('sale-price').value) || 0;
+            const profit = sale - cost;
+            const previewEl = document.getElementById('modal-profit-preview');
+            previewEl.textContent = formatCurrency(profit);
+            previewEl.className = profit >= 0
+                ? 'font-mono font-bold text-emerald-600 dark:text-emerald-400'
+                : 'font-mono font-bold text-rose-600 dark:text-rose-400';
+        };
+
+        window.saveOrder = async function (event) {
+            event.preventDefault();
+            const existingId = document.getElementById('order-id').value;
+            const orderData = {
+                id: existingId || `ORD-${Math.floor(100 + Math.random() * 900)}`,
+                clientName: document.getElementById('client-name').value.trim(),
+                clientContact: document.getElementById('client-contact').value.trim(),
+                partName: document.getElementById('part-name').value.trim(),
+                qty: parseInt(document.getElementById('part-qty').value) || 1,
+                material: document.getElementById('material').value,
+                color: document.getElementById('color').value.trim(),
+                weight: parseFloat(document.getElementById('weight').value) || 0,
+                printTime: parseFloat(document.getElementById('print-time').value) || 0,
+                costPrice: parseFloat(document.getElementById('cost-price').value) || 0,
+                salePrice: parseFloat(document.getElementById('sale-price').value) || 0,
+                status: document.getElementById('status').value,
+                paymentStatus: document.getElementById('payment-status').value,
+                dueDate: document.getElementById('due-date').value,
+                createdAt: existingId
+                    ? (orders.find(o => o.id === existingId)?.createdAt || new Date().toISOString())
+                    : new Date().toISOString()
+            };
+
+            closeModal();
+            await persistOrder(orderData);
+            showToast(existingId ? 'Pedido atualizado!' : 'Novo pedido cadastrado!');
+        };
+
+        window.editOrder = function (id) {
+            const order = orders.find(o => o.id === id);
+            if (order) openModal(order);
+        };
+
+        window.quickUpdateStatus = async function (id, newStatus) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                const updated = { ...order, status: newStatus };
+                await persistOrder(updated);
+                showToast(`Status alterado para "${newStatus}"`);
+            }
+        };
+
+        window.cyclePaymentStatus = async function (id) {
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+            const cycle = ['Pendente', '50% Sinal', 'Pago'];
+            const nextIdx = (cycle.indexOf(order.paymentStatus) + 1) % cycle.length;
+            const updated = { ...order, paymentStatus: cycle[nextIdx] };
+            await persistOrder(updated);
+            showToast(`Pagamento: ${updated.paymentStatus}`);
+        };
+
+        // Modais de Custos de Materiais
+        window.openMaterialModal = function (mat = null) {
+            const modal = document.getElementById('material-modal');
+            const form = document.getElementById('material-form');
+            form.reset();
+
+            if (mat) {
+                document.getElementById('material-modal-title').textContent = 'Editar Custo de Material';
+                document.getElementById('mat-id').value = mat.id;
+                document.getElementById('mat-category').value = mat.category;
+                document.getElementById('mat-date').value = mat.date || '';
+                document.getElementById('mat-name').value = mat.name;
+                document.getElementById('mat-supplier').value = mat.supplier || '';
+                document.getElementById('mat-weight').value = mat.weight || '';
+                document.getElementById('mat-cost').value = mat.cost;
+            } else {
+                document.getElementById('material-modal-title').textContent = 'Registrar Custo de Material';
+                document.getElementById('mat-id').value = '';
+                document.getElementById('mat-date').value = new Date().toISOString().split('T')[0];
+            }
+
+            updateCostPerGramPreview();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeMaterialModal = function () {
+            const modal = document.getElementById('material-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        window.updateCostPerGramPreview = function () {
+            const weight = parseFloat(document.getElementById('mat-weight').value) || 0;
+            const cost = parseFloat(document.getElementById('mat-cost').value) || 0;
+            const preview = document.getElementById('mat-per-gram-preview');
+            if (weight > 0 && cost > 0) {
+                preview.textContent = `R$ ${(cost / weight).toFixed(3)} / g`;
+            } else {
+                preview.textContent = 'R$ 0,00 / g';
+            }
+        };
+
+        window.saveMaterial = async function (event) {
+            event.preventDefault();
+            const existingId = document.getElementById('mat-id').value;
+            const matData = {
+                id: existingId || `MAT-${Math.floor(100 + Math.random() * 900)}`,
+                category: document.getElementById('mat-category').value,
+                date: document.getElementById('mat-date').value,
+                name: document.getElementById('mat-name').value.trim(),
+                supplier: document.getElementById('mat-supplier').value.trim(),
+                weight: parseFloat(document.getElementById('mat-weight').value) || 0,
+                cost: parseFloat(document.getElementById('mat-cost').value) || 0
+            };
+
+            closeMaterialModal();
+            await persistMaterial(matData);
+            showToast(existingId ? 'Custo atualizado!' : 'Novo custo registrado!');
+        };
+
+        window.editMaterial = function (id) {
+            const mat = materials.find(m => m.id === id);
+            if (mat) openMaterialModal(mat);
+        };
+
+        // Exclusão Unificada (Pedidos e Materiais)
+        window.promptDelete = function (id) {
+            itemToDelete = { type: 'order', id };
+            document.getElementById('delete-modal-title').textContent = 'Excluir Pedido?';
+            document.getElementById('delete-modal-desc').textContent = 'Essa ação removerá o pedido e atualizará o dashboard financeiro.';
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.promptDeleteMaterial = function (id) {
+            itemToDelete = { type: 'material', id };
+            document.getElementById('delete-modal-title').textContent = 'Excluir Custo de Material?';
+            document.getElementById('delete-modal-desc').textContent = 'Essa ação removerá o registro de compra e recalculará seu lucro.';
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeDeleteModal = function () {
+            itemToDelete = null;
+            const modal = document.getElementById('delete-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        document.getElementById('confirm-delete-btn').onclick = async function () {
+            if (itemToDelete) {
+                const target = { ...itemToDelete };
+                closeDeleteModal();
+                if (target.type === 'order') {
+                    await removeOrder(target.id);
+                    showToast('Pedido excluído.');
+                } else {
+                    await removeMaterial(target.id);
+                    showToast('Custo removido.');
+                }
+            }
+        };
+
+        // Backup Completo (Exportar / Importar Pedidos + Materiais)
+        window.exportData = function () {
+            const payload = {
+                app: 'Gestao LUAN 3D STUDIO',
+                exportedAt: new Date().toISOString(),
+                orders,
+                materials
+            };
+            const dataStr = JSON.stringify(payload, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_luan_3d_studio_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Backup completo baixado!');
+        };
+
+        window.importData = function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    const importedOrders = Array.isArray(parsed) ? parsed : (parsed.orders || []);
+                    const importedMaterials = Array.isArray(parsed) ? [] : (parsed.materials || []);
+
+                    for (const ord of importedOrders) {
+                        if (ord && ord.id) await persistOrder(ord);
+                    }
+                    for (const mat of importedMaterials) {
+                        if (mat && mat.id) await persistMaterial(mat);
+                    }
+                    showToast(`Backup restaurado (${importedOrders.length} pedidos, ${importedMaterials.length} materiais)!`);
+                } catch (err) {
+                    showToast('Arquivo de backup inválido.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        };
+
+        // Badges de Status
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'Fila':
+                    return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700';
+                case 'Imprimindo':
+                    return 'bg-orange-50 dark:bg-orange-950/70 text-filament-600 dark:text-orange-400 border-orange-300 dark:border-orange-800';
+                case 'Acabamento':
+                    return 'bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-400 border-purple-300 dark:border-purple-800';
+                case 'Concluído':
+                    return 'bg-brand-50 dark:bg-blue-950/70 text-brand-600 dark:text-blue-400 border-brand-200 dark:border-blue-800';
+                case 'Entregue':
+                    return 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800';
+                default:
+                    return 'bg-slate-100 text-slate-700 border-slate-300';
+            }
+        }
+
+        function getPaymentBadge(payment) {
+            switch (payment) {
+                case 'Pago':
+                    return 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100';
+                case '50% Sinal':
+                    return 'bg-orange-50 dark:bg-orange-950/70 text-filament-600 dark:text-orange-400 border-orange-300 dark:border-orange-800 hover:bg-orange-100';
+                default:
+                    return 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-400 border-rose-300 dark:border-rose-800 hover:bg-rose-100';
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="no-print fixed bottom-5 right-5 z-50 bg-charcoal-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 text-sm font-medium flex items-center gap-2.5 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+        <span id="toast-message">Ação realizada!</span>
+    </div>
+</body>
+</html>
