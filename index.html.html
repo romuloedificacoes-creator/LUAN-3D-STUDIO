@@ -76,15 +76,15 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- Resumo Financeiro Geral (Pedidos) -->
+    <!-- Resumo Financeiro Geral (Ordem: Faturamento Bruto, A Receber, Custos, Lucro Líquido) -->
     <section>
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">📊 Resumo Financeiro de Pedidos</h2>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">📊 Resumo Financeiro</h2>
         <span class="text-xs px-2.5 py-1 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">Total Acumulado</span>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Faturamento Bruto -->
+        <!-- 1. Faturamento Bruto -->
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Faturamento Bruto</span>
@@ -94,37 +94,37 @@
           <p class="text-xs text-slate-400 mt-1">Valor unitário × qtd. dos pedidos</p>
         </div>
 
-        <!-- Lucro Líquido de Pedidos -->
+        <!-- 2. A Receber -->
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Lucro Líquido (Pedidos)</span>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">A Receber</span>
+            <span class="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/60 text-[#F97316] flex items-center justify-center font-bold">⏳</span>
+          </div>
+          <p id="kpiReceivable" class="text-2xl font-extrabold text-[#F97316] mt-2">R$ 0,00</p>
+          <p id="kpiReceivableCount" class="text-xs text-slate-400 mt-1">0 pedido(s) com saldo aberto</p>
+        </div>
+
+        <!-- 3. Custos (Materiais e outros) -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Custos (Materiais e outros)</span>
+            <span class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold">⚙</span>
+          </div>
+          <p id="kpiTotalCosts" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">R$ 0,00</p>
+          <p id="kpiCostsBreakdown" class="text-xs text-slate-400 mt-1">R$ 0,00 materiais + R$ 0,00 pedidos</p>
+        </div>
+
+        <!-- 4. Lucro Líquido -->
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Lucro Líquido</span>
             <span class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">↗</span>
           </div>
           <div class="flex items-baseline gap-2 mt-2">
             <p id="kpiProfit" class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">R$ 0,00</p>
             <span id="kpiMargin" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">0%</span>
           </div>
-          <p class="text-xs text-slate-400 mt-1">Faturamento menos custo de produção</p>
-        </div>
-
-        <!-- Custo de Produção dos Pedidos -->
-        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Custo de Produção</span>
-            <span class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold">⚙</span>
-          </div>
-          <p id="kpiProdCost" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">R$ 0,00</p>
-          <p id="kpiGrams" class="text-xs text-slate-400 mt-1">0g estimados nos pedidos</p>
-        </div>
-
-        <!-- A Receber -->
-        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">A Receber (Pendentes)</span>
-            <span class="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/60 text-[#F97316] flex items-center justify-center font-bold">⏳</span>
-          </div>
-          <p id="kpiReceivable" class="text-2xl font-extrabold text-[#F97316] mt-2">R$ 0,00</p>
-          <p id="kpiReceivableCount" class="text-xs text-slate-400 mt-1">0 pedido(s) com saldo aberto</p>
+          <p class="text-xs text-slate-400 mt-1">Faturamento menos custos totais</p>
         </div>
       </div>
     </section>
@@ -312,7 +312,7 @@
               <input id="orderUnitPrice" oninput="updateOrderTotalPreview()" required type="number" step="0.01" min="0" placeholder="0,00" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold" />
             </div>
             <div>
-              <label class="block text-xs font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">Custo Prod. Total (R$)</label>
+              <label class="block text-xs font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">Outros Custos (R$)</label>
               <input id="orderCost" type="number" step="0.01" min="0" value="0" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm" />
             </div>
           </div>
@@ -351,7 +351,7 @@
     </div>
   </div>
 
-  <!-- MODAL: NOVO MATERIAL (SEM CUSTO POR GRAMA) -->
+  <!-- MODAL: NOVO MATERIAL -->
   <div id="materialModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl">
       <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
@@ -555,11 +555,10 @@
         : 'px-4 py-2.5 rounded-xl text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition';
     }
 
-    // Dashboard Financeiro (Multiplicação Unitário x Quantidade)
+    // Dashboard Financeiro: Faturamento Bruto | A Receber | Custos (Materiais e outros) | Lucro Líquido
     function updateKPIs() {
       let grossRevenue = 0;
-      let prodCost = 0;
-      let totalGrams = 0;
+      let otherOrderCosts = 0;
       let receivable = 0;
       let receivableCount = 0;
 
@@ -570,8 +569,7 @@
         const cost = Number(o.cost) || 0;
 
         grossRevenue += totalOrder;
-        prodCost += cost;
-        totalGrams += Number(o.weight) || 0;
+        otherOrderCosts += cost;
 
         if (o.payment === 'Pendente') {
           receivable += totalOrder;
@@ -582,16 +580,24 @@
         }
       });
 
-      const netProfit = grossRevenue - prodCost;
+      const materialsCost = materials.reduce((acc, m) => acc + ((Number(m.qty) || 1) * (Number(m.unitCost) || 0)), 0);
+      const totalCosts = materialsCost + otherOrderCosts;
+      const netProfit = grossRevenue - totalCosts;
       const margin = grossRevenue > 0 ? Math.round((netProfit / grossRevenue) * 100) : 0;
 
       document.getElementById('kpiRevenue').textContent = formatCurrency(grossRevenue);
-      document.getElementById('kpiProfit').textContent = formatCurrency(netProfit);
-      document.getElementById('kpiMargin').textContent = `${margin}%`;
-      document.getElementById('kpiProdCost').textContent = formatCurrency(prodCost);
-      document.getElementById('kpiGrams').textContent = `${totalGrams}g estimados nos pedidos`;
       document.getElementById('kpiReceivable').textContent = formatCurrency(receivable);
       document.getElementById('kpiReceivableCount').textContent = `${receivableCount} pedido(s) com saldo aberto`;
+      document.getElementById('kpiTotalCosts').textContent = formatCurrency(totalCosts);
+      document.getElementById('kpiCostsBreakdown').textContent = `${formatCurrency(materialsCost)} materiais + ${formatCurrency(otherOrderCosts)} outros`;
+
+      const profitEl = document.getElementById('kpiProfit');
+      profitEl.textContent = formatCurrency(netProfit);
+      profitEl.className = netProfit >= 0
+        ? 'text-2xl font-extrabold text-emerald-600 dark:text-emerald-400'
+        : 'text-2xl font-extrabold text-rose-600 dark:text-rose-400';
+
+      document.getElementById('kpiMargin').textContent = `${margin}%`;
     }
 
     // Renderizar Tabela de Pedidos
