@@ -263,6 +263,10 @@
           <option value="Imprimindo">Imprimindo</option>
           <option value="Acabamento">Acabamento</option>
           <option value="Concluído">Concluído</option>
+        </select>
+        <select id="filterDelivery" onchange="renderOrders()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-medium">
+          <option value="ALL">Entrega: Todos</option>
+          <option value="Não Entregue">Não Entregue</option>
           <option value="Entregue">Entregue</option>
         </select>
         <select id="filterPayment" onchange="renderOrders()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-medium">
@@ -290,6 +294,7 @@
                 <th class="py-3.5 px-4">Cliente</th>
                 <th class="py-3.5 px-4">Material</th>
                 <th class="py-3.5 px-4">Produção</th>
+                <th class="py-3.5 px-4">Entrega</th>
                 <th class="py-3.5 px-4">Valor & Pagamento</th>
                 <th class="py-3.5 px-6 text-right">Ações</th>
               </tr>
@@ -392,7 +397,7 @@
     </section>
   </main>
 
-  <!-- MODAL: NOVO / EDITAR PEDIDO (SEM HORAS E SEM GRAMATURA) -->
+  <!-- MODAL: NOVO / EDITAR PEDIDO -->
   <div id="orderModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
@@ -466,16 +471,23 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Status de Produção</label>
-            <select id="orderStatus" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-medium">
+            <select id="orderStatus" onchange="syncOrderDeliveryFieldState()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-medium">
               <option value="Na Fila">Na Fila</option>
               <option value="Imprimindo">Imprimindo</option>
               <option value="Acabamento">Acabamento</option>
               <option value="Concluído">Concluído</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Entrega</label>
+            <select id="orderDeliveryStatus" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+              <option value="Não Entregue">Não Entregue</option>
               <option value="Entregue">Entregue</option>
             </select>
+            <p id="orderDeliveryHint" class="text-[10px] text-slate-400 mt-1">Habilita ao concluir produção</p>
           </div>
           <div>
             <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Status de Pagamento</label>
@@ -672,6 +684,95 @@
 
   <script>
     // =========================================================================
+    // 0. BLOQUEIO DE SEGURANÇA POR PIN (6524)
+    // =========================================================================
+    const STUDIO_PIN = '6524';
+    const PIN_SESSION_KEY = 'luan3d_pin_unlocked_v1';
+    let currentPinBuffer = '';
+
+    function updatePinDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`pinDot${i}`);
+        if (!dot) continue;
+        if (i < currentPinBuffer.length) {
+          dot.className = 'w-4 h-4 rounded-full bg-[#2563EB] border-2 border-[#2563EB] scale-110 transition-all duration-150';
+        } else {
+          dot.className = 'w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150';
+        }
+      }
+    }
+
+    function enterPinDigit(digit) {
+      if (currentPinBuffer.length >= 4) return;
+      document.getElementById('pinErrorMsg').textContent = '';
+      currentPinBuffer += digit;
+      updatePinDots();
+
+      if (currentPinBuffer.length === 4) {
+        if (currentPinBuffer === STUDIO_PIN) {
+          sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+          document.getElementById('pinLockScreen').classList.add('hidden');
+          currentPinBuffer = '';
+          updatePinDots();
+        } else {
+          const dotsBox = document.getElementById('pinDotsContainer');
+          dotsBox.classList.remove('animate-pin-shake');
+          void dotsBox.offsetWidth;
+          dotsBox.classList.add('animate-pin-shake');
+          document.getElementById('pinErrorMsg').textContent = 'PIN incorreto. Tente novamente.';
+          setTimeout(() => {
+            currentPinBuffer = '';
+            updatePinDots();
+          }, 350);
+        }
+      }
+    }
+
+    function backspacePinDigit() {
+      if (currentPinBuffer.length === 0) return;
+      currentPinBuffer = currentPinBuffer.slice(0, -1);
+      document.getElementById('pinErrorMsg').textContent = '';
+      updatePinDots();
+    }
+
+    function clearPinInput() {
+      currentPinBuffer = '';
+      document.getElementById('pinErrorMsg').textContent = '';
+      updatePinDots();
+    }
+
+    function lockApp() {
+      sessionStorage.removeItem(PIN_SESSION_KEY);
+      currentPinBuffer = '';
+      document.getElementById('pinErrorMsg').textContent = '';
+      updatePinDots();
+      document.getElementById('pinLockScreen').classList.remove('hidden');
+    }
+
+    function checkInitialPinLock() {
+      if (sessionStorage.getItem(PIN_SESSION_KEY) === 'true') {
+        document.getElementById('pinLockScreen').classList.add('hidden');
+      } else {
+        document.getElementById('pinLockScreen').classList.remove('hidden');
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const lockScreen = document.getElementById('pinLockScreen');
+      if (!lockScreen || lockScreen.classList.contains('hidden')) return;
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        enterPinDigit(e.key);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        backspacePinDigit();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        clearPinInput();
+      }
+    });
+
+    // =========================================================================
     // 1. CONFIGURAÇÃO FIREBASE FIRESTORE (TEMPO REAL)
     // =========================================================================
     const firebaseConfig = {
@@ -736,6 +837,7 @@
         unitPrice: 12,
         cost: 0,
         status: 'Na Fila',
+        deliveryStatus: 'Não Entregue',
         payment: 'Pendente'
       },
       {
@@ -750,6 +852,7 @@
         unitPrice: 25,
         cost: 30,
         status: 'Na Fila',
+        deliveryStatus: 'Não Entregue',
         payment: 'Pendente'
       }
     ];
@@ -789,31 +892,44 @@
     let materials = loadLocalArray(STORAGE_MATERIALS_KEY) || [...DEFAULT_MATERIALS];
     let tasks = loadLocalArray(STORAGE_TASKS_KEY) || [...DEFAULT_TASKS];
 
-    const PRODUCTION_STATUSES = ['Na Fila', 'Imprimindo', 'Acabamento', 'Concluído', 'Entregue'];
+    const PRODUCTION_STATUSES = ['Na Fila', 'Imprimindo', 'Acabamento', 'Concluído'];
     const PAYMENT_STATUSES = ['Pendente', '50% Sinal', 'Pago'];
 
     let pendingDeleteAction = null;
 
-    // Normaliza IDs antigos (ex: ORD-101 -> 01, ORD-102 -> 02) e ordena 01, 02, 03...
+    // Normaliza IDs antigos e migra status legados ("Entregue" -> Produção: "Concluído" + Entrega: "Entregue")
     function normalizeOrderIds(list) {
       if (!Array.isArray(list)) return [];
       const hasLegacyIds = list.some(o => String(o.id).startsWith('ORD-'));
+      let normalizedList = list;
       if (hasLegacyIds) {
-        const sortedLegacy = [...list].sort((a, b) => {
+        normalizedList = [...list].sort((a, b) => {
           const numA = parseInt(String(a.id).replace(/\D/g, ''), 10) || 0;
           const numB = parseInt(String(b.id).replace(/\D/g, ''), 10) || 0;
           return numA - numB;
-        });
-        return sortedLegacy.map((o, idx) => ({
+        }).map((o, idx) => ({
           ...o,
           id: String(idx + 1).padStart(2, '0')
         }));
       }
-      return [...list]
-        .map(o => ({
-          ...o,
-          id: String(parseInt(String(o.id).replace(/\D/g, ''), 10) || 1).padStart(2, '0')
-        }))
+      return normalizedList
+        .map(o => {
+          let prodStatus = o.status || 'Na Fila';
+          let delivStatus = o.deliveryStatus || 'Não Entregue';
+          if (prodStatus === 'Entregue') {
+            prodStatus = 'Concluído';
+            delivStatus = 'Entregue';
+          }
+          if (prodStatus !== 'Concluído') {
+            delivStatus = 'Não Entregue';
+          }
+          return {
+            ...o,
+            id: String(parseInt(String(o.id).replace(/\D/g, ''), 10) || 1).padStart(2, '0'),
+            status: prodStatus,
+            deliveryStatus: delivStatus
+          };
+        })
         .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
     }
 
@@ -869,7 +985,6 @@
       studioDocRef.onSnapshot(
         async (docSnap) => {
           if (!docSnap.exists) {
-            // Primeira abertura na nuvem: migra os dados locais/padrão automaticamente para o Firestore
             setCloudStatus('syncing', 'Enviando dados iniciais...');
             try {
               await studioDocRef.set({
@@ -1040,11 +1155,12 @@
     }
 
     // =========================================================================
-    // 6. CRUD DE PEDIDOS (01, 02, 03...)
+    // 6. CRUD DE PEDIDOS (01, 02, 03... + PRODUÇÃO & ENTREGA SEPARADOS)
     // =========================================================================
     function renderOrders() {
       const search = document.getElementById('searchOrders').value.toLowerCase();
       const statusFilter = document.getElementById('filterStatus').value;
+      const deliveryFilter = document.getElementById('filterDelivery').value;
       const payFilter = document.getElementById('filterPayment').value;
 
       const filtered = orders
@@ -1054,9 +1170,11 @@
             o.client.toLowerCase().includes(search) ||
             o.item.toLowerCase().includes(search) ||
             o.material.toLowerCase().includes(search);
+          const delivVal = (o.status === 'Concluído' && o.deliveryStatus === 'Entregue') ? 'Entregue' : 'Não Entregue';
           const matchStatus = statusFilter === 'ALL' || o.status === statusFilter;
+          const matchDelivery = deliveryFilter === 'ALL' || delivVal === deliveryFilter;
           const matchPay = payFilter === 'ALL' || o.payment === payFilter;
-          return matchSearch && matchStatus && matchPay;
+          return matchSearch && matchStatus && matchDelivery && matchPay;
         })
         .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
 
@@ -1065,7 +1183,7 @@
 
       const tbody = document.getElementById('ordersTableBody');
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`;
         return;
       }
 
@@ -1075,6 +1193,8 @@
         const cost = Number(o.cost) || 0;
         const total = (qty * unit) + cost;
         const isPaid = o.payment === 'Pago';
+        const isConcluded = o.status === 'Concluído';
+        const isDelivered = isConcluded && o.deliveryStatus === 'Entregue';
 
         const payBadge = isPaid
           ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
@@ -1083,11 +1203,25 @@
           : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300';
 
         const statusBadge =
-          o.status === 'Entregue' || o.status === 'Concluído'
+          isConcluded
             ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
             : o.status === 'Imprimindo'
             ? 'bg-blue-50 text-[#2563EB] border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
+            : o.status === 'Acabamento'
+            ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800'
             : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+
+        const deliveryButtonHtml = !isConcluded
+          ? `<button type="button" disabled title="Disponível apenas quando a produção estiver Concluída" class="text-xs font-bold px-3 py-1 rounded-full border bg-slate-100/70 text-slate-400 border-slate-200 dark:bg-slate-800/50 dark:text-slate-500 dark:border-slate-700/60 opacity-60 cursor-not-allowed inline-flex items-center gap-1.5">
+               <i class="fa-solid fa-lock text-[10px]"></i> Não Entregue
+             </button>`
+          : isDelivered
+          ? `<button type="button" onclick="toggleDeliveryStatus('${o.id}')" title="Clique para marcar como Não Entregue" class="text-xs font-bold px-3 py-1 rounded-full border bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800 hover:opacity-80 transition inline-flex items-center gap-1.5">
+               <i class="fa-solid fa-truck-fast text-[10px]"></i> Entregue
+             </button>`
+          : `<button type="button" onclick="toggleDeliveryStatus('${o.id}')" title="Clique para marcar como Entregue" class="text-xs font-bold px-3 py-1 rounded-full border bg-orange-50 text-[#F97316] border-orange-200 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800 hover:opacity-80 transition inline-flex items-center gap-1.5">
+               <i class="fa-solid fa-box text-[10px]"></i> Não Entregue
+             </button>`;
 
         return `
           <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
@@ -1113,6 +1247,9 @@
               <button onclick="cycleProductionStatus('${o.id}')" title="Clique para avançar o status de produção" class="text-xs font-bold px-3 py-1 rounded-full border ${statusBadge} hover:opacity-80 transition">
                 ${o.status}
               </button>
+            </td>
+            <td class="py-4 px-4">
+              ${deliveryButtonHtml}
             </td>
             <td class="py-4 px-4">
               <div class="font-extrabold text-slate-900 dark:text-white">${formatCurrency(total)}</div>
@@ -1142,6 +1279,22 @@
       document.getElementById('orderTotalPreview').textContent = formatCurrency((qty * unit) + cost);
     }
 
+    function syncOrderDeliveryFieldState() {
+      const prodSelect = document.getElementById('orderStatus');
+      const delivSelect = document.getElementById('orderDeliveryStatus');
+      const hintEl = document.getElementById('orderDeliveryHint');
+      if (!prodSelect || !delivSelect) return;
+
+      const isConcluded = prodSelect.value === 'Concluído';
+      delivSelect.disabled = !isConcluded;
+      if (!isConcluded) {
+        delivSelect.value = 'Não Entregue';
+        if (hintEl) hintEl.textContent = 'Habilita ao concluir produção';
+      } else {
+        if (hintEl) hintEl.textContent = 'Pronto para entrega';
+      }
+    }
+
     function openOrderModal() {
       document.getElementById('orderForm').reset();
       const nextId = getNextOrderId();
@@ -1154,6 +1307,9 @@
       document.getElementById('orderMaterial').value = 'PLA';
       document.getElementById('orderQty').value = 1;
       document.getElementById('orderCost').value = 0;
+      document.getElementById('orderStatus').value = 'Na Fila';
+      document.getElementById('orderDeliveryStatus').value = 'Não Entregue';
+      syncOrderDeliveryFieldState();
       updateOrderTotalPreview();
       document.getElementById('orderModal').classList.remove('hidden');
     }
@@ -1178,7 +1334,9 @@
       document.getElementById('orderUnitPrice').value = o.unitPrice || 0;
       document.getElementById('orderCost').value = o.cost || 0;
       document.getElementById('orderStatus').value = o.status || 'Na Fila';
+      document.getElementById('orderDeliveryStatus').value = (o.status === 'Concluído' && o.deliveryStatus === 'Entregue') ? 'Entregue' : 'Não Entregue';
       document.getElementById('orderPayment').value = o.payment || 'Pendente';
+      syncOrderDeliveryFieldState();
       updateOrderTotalPreview();
       document.getElementById('orderModal').classList.remove('hidden');
     }
@@ -1186,6 +1344,11 @@
     function saveOrder(e) {
       e.preventDefault();
       const existingId = document.getElementById('orderId').value;
+      const prodStatus = document.getElementById('orderStatus').value;
+      const delivStatus = prodStatus === 'Concluído'
+        ? document.getElementById('orderDeliveryStatus').value
+        : 'Não Entregue';
+
       const orderData = {
         id: existingId || getNextOrderId(),
         client: document.getElementById('orderClient').value.trim(),
@@ -1197,7 +1360,8 @@
         qty: Number(document.getElementById('orderQty').value) || 1,
         unitPrice: Number(document.getElementById('orderUnitPrice').value) || 0,
         cost: Number(document.getElementById('orderCost').value) || 0,
-        status: document.getElementById('orderStatus').value,
+        status: prodStatus,
+        deliveryStatus: delivStatus,
         payment: document.getElementById('orderPayment').value
       };
 
@@ -1219,8 +1383,23 @@
       if (!o) return;
       const nextIdx = (PRODUCTION_STATUSES.indexOf(o.status) + 1) % PRODUCTION_STATUSES.length;
       o.status = PRODUCTION_STATUSES[nextIdx];
+      if (o.status !== 'Concluído') {
+        o.deliveryStatus = 'Não Entregue';
+      }
       saveAll(true);
       showToast(`Pedido ${o.id}: ${o.status}`);
+    }
+
+    function toggleDeliveryStatus(id) {
+      const o = orders.find(x => x.id === id);
+      if (!o) return;
+      if (o.status !== 'Concluído') {
+        showToast('Conclua a produção antes de alterar a entrega.');
+        return;
+      }
+      o.deliveryStatus = o.deliveryStatus === 'Entregue' ? 'Não Entregue' : 'Entregue';
+      saveAll(true);
+      showToast(`Entrega ${o.id}: ${o.deliveryStatus}`);
     }
 
     function cyclePayment(id) {
@@ -1677,12 +1856,13 @@
         const unit = Number(o.unitPrice) || 0;
         const cost = Number(o.cost) || 0;
         const unitDesc = `${qty}x ${formatCurrency(unit)}${cost > 0 ? `\n(+${formatCurrency(cost)} outros)` : ''}`;
+        const delivLabel = (o.status === 'Concluído' && o.deliveryStatus === 'Entregue') ? 'Entregue' : 'Não Entregue';
         return [
           o.id,
           `${o.item}\nMat: ${o.material}`,
           o.client + (o.phone ? `\n${o.phone}` : ''),
           `Ped: ${formatDateBR(o.orderDate)}\nEnt: ${formatDateBR(o.deliveryDate)}`,
-          `${o.status}\n[${o.payment}]`,
+          `${o.status} • ${delivLabel}\n[${o.payment}]`,
           unitDesc,
           formatCurrency((qty * unit) + cost)
         ];
@@ -1690,7 +1870,7 @@
 
       doc.autoTable({
         startY: tableStartY,
-        head: [['Nº', 'Item / Material', 'Cliente', 'Datas', 'Status / Pgto.', 'Detalhamento', 'Total']],
+        head: [['Nº', 'Item / Material', 'Cliente', 'Datas', 'Status / Entrega', 'Detalhamento', 'Total']],
         body: rows,
         theme: 'grid',
         headStyles: {
@@ -1710,13 +1890,13 @@
           fillColor: [248, 250, 252]
         },
         columnStyles: {
-          0: { fontStyle: 'bold', textColor: [37, 99, 235], cellWidth: 14, halign: 'center' },
-          1: { cellWidth: 50 },
-          2: { cellWidth: 34 },
-          3: { cellWidth: 26 },
-          4: { cellWidth: 24, fontStyle: 'bold' },
-          5: { cellWidth: 26, halign: 'right' },
-          6: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [15, 23, 42] }
+          0: { fontStyle: 'bold', textColor: [37, 99, 235], cellWidth: 12, halign: 'center' },
+          1: { cellWidth: 46 },
+          2: { cellWidth: 32 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 32, fontStyle: 'bold' },
+          5: { cellWidth: 24, halign: 'right' },
+          6: { cellWidth: 21, halign: 'right', fontStyle: 'bold', textColor: [15, 23, 42] }
         },
         didParseCell: function(data) {
           if (data.section === 'body' && data.column.index === 4) {
@@ -1798,100 +1978,9 @@
     // =========================================================================
     // 11. INICIALIZAÇÃO
     // =========================================================================
-    // 11. BLOQUEIO POR PIN (6524) & INICIALIZAÇÃO
-    // =========================================================================
-    const APP_PIN_CODE = '6524';
-    const PIN_SESSION_KEY = 'luan3d_unlocked_session';
-    let currentPinBuffer = '';
-
-    function updatePinDots(isError = false) {
-      for (let i = 0; i < 4; i++) {
-        const dot = document.getElementById(`pinDot${i}`);
-        if (!dot) continue;
-        if (isError) {
-          dot.className = 'w-4 h-4 rounded-full bg-rose-500 border-2 border-rose-500 scale-110 transition-all duration-150';
-        } else if (i < currentPinBuffer.length) {
-          dot.className = 'w-4 h-4 rounded-full bg-[#2563EB] border-2 border-[#2563EB] scale-110 transition-all duration-150';
-        } else {
-          dot.className = 'w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150';
-        }
-      }
-    }
-
-    function enterPinDigit(digit) {
-      if (currentPinBuffer.length >= 4) return;
-      document.getElementById('pinErrorMsg').textContent = '';
-      currentPinBuffer += String(digit);
-      updatePinDots(false);
-
-      if (currentPinBuffer.length === 4) {
-        if (currentPinBuffer === APP_PIN_CODE) {
-          sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-          document.getElementById('pinLockScreen').classList.add('hidden');
-          currentPinBuffer = '';
-          updatePinDots(false);
-        } else {
-          updatePinDots(true);
-          document.getElementById('pinErrorMsg').textContent = 'PIN incorreto. Tente novamente.';
-          const container = document.getElementById('pinDotsContainer');
-          container.classList.remove('animate-pin-shake');
-          void container.offsetWidth;
-          container.classList.add('animate-pin-shake');
-          setTimeout(() => {
-            currentPinBuffer = '';
-            updatePinDots(false);
-          }, 550);
-        }
-      }
-    }
-
-    function backspacePinDigit() {
-      if (!currentPinBuffer.length) return;
-      currentPinBuffer = currentPinBuffer.slice(0, -1);
-      document.getElementById('pinErrorMsg').textContent = '';
-      updatePinDots(false);
-    }
-
-    function clearPinInput() {
-      currentPinBuffer = '';
-      document.getElementById('pinErrorMsg').textContent = '';
-      updatePinDots(false);
-    }
-
-    function lockApp() {
-      sessionStorage.removeItem(PIN_SESSION_KEY);
-      currentPinBuffer = '';
-      document.getElementById('pinErrorMsg').textContent = '';
-      updatePinDots(false);
-      document.getElementById('pinLockScreen').classList.remove('hidden');
-    }
-
-    function initPinLock() {
-      if (sessionStorage.getItem(PIN_SESSION_KEY) === 'true') {
-        document.getElementById('pinLockScreen').classList.add('hidden');
-      } else {
-        document.getElementById('pinLockScreen').classList.remove('hidden');
-      }
-
-      document.addEventListener('keydown', (e) => {
-        const lockEl = document.getElementById('pinLockScreen');
-        if (!lockEl || lockEl.classList.contains('hidden')) return;
-        if (/^[0-9]$/.test(e.key)) {
-          e.preventDefault();
-          enterPinDigit(e.key);
-        } else if (e.key === 'Backspace') {
-          e.preventDefault();
-          backspacePinDigit();
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          clearPinInput();
-        }
-      });
-    }
-
     window.onload = function() {
+      checkInitialPinLock();
       initTheme();
-      initPinLock();
       orders = normalizeOrderIds(orders);
       writeLocalCache();
       renderAll();
