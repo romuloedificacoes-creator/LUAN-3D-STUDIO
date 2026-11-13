@@ -455,41 +455,30 @@
   <!-- MODAL: CONFIRMAÇÃO DE EXCLUSÃO -->
   <div id="confirmDeleteModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-      <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">Confirmar Exclusão</h3>
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Confirmar Exclusão</h3>
+        <button onclick="closeConfirmDeleteModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+      </div>
       <p id="confirmDeleteMessage" class="text-sm text-slate-600 dark:text-slate-300">Deseja realmente excluir este item?</p>
       <div class="flex justify-end gap-3 pt-2">
-        <button onclick="closeConfirmDeleteModal()" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold">Cancelar</button>
-        <button id="confirmDeleteBtn" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold shadow-sm">Excluir</button>
+        <button onclick="closeConfirmDeleteModal()" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold">Cancelar</button>
+        <button id="confirmDeleteBtn" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm">Excluir</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast de Notificação -->
-  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-lg text-sm font-bold transition-all"></div>
+  <!-- Notificação Flutuante (Toast) -->
+  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-lg text-sm font-bold"></div>
 
   <script>
     const STORAGE_ORDERS_KEY = 'luan3d_orders_v2';
     const STORAGE_MATERIALS_KEY = 'luan3d_materials_v2';
     const STORAGE_THEME_KEY = 'luan3d_theme';
 
-    // Dados reais embutidos como padrão
+    // Dados reais embutidos como padrão em ordem crescente (01, 02...)
     let orders = JSON.parse(localStorage.getItem(STORAGE_ORDERS_KEY)) || [
       {
-        id: 'ORD-102',
-        client: 'TIA ANGELA / KAYLANE / ZEUMA',
-        phone: '',
-        item: 'KIT DE NATAL - NOME FELIZ NATAL + ANJO + 3 PINGENTES',
-        orderDate: '2026-11-13',
-        deliveryDate: '2026-11-13',
-        material: 'PETG',
-        qty: 15,
-        unitPrice: 25,
-        cost: 30,
-        status: 'Na Fila',
-        payment: 'Pendente'
-      },
-      {
-        id: 'ORD-101',
+        id: '01',
         client: 'LUCIANA',
         phone: '',
         item: 'ENFEITES DE NATAL - HARRY POTTER ',
@@ -501,8 +490,48 @@
         cost: 0,
         status: 'Na Fila',
         payment: 'Pendente'
+      },
+      {
+        id: '02',
+        client: 'TIA ANGELA / KAYLANE / ZEUMA',
+        phone: '',
+        item: 'KIT DE NATAL - NOME FELIZ NATAL + ANJO + 3 PINGENTES',
+        orderDate: '2026-11-13',
+        deliveryDate: '2026-11-13',
+        material: 'PETG',
+        qty: 15,
+        unitPrice: 25,
+        cost: 30,
+        status: 'Na Fila',
+        payment: 'Pendente'
       }
     ];
+
+    // Normaliza pedidos antigos (ex: ORD-101, ORD-102) para o formato sequencial 01, 02...
+    function normalizeOrderIds() {
+      const hasLegacyIds = orders.some(o => String(o.id).startsWith('ORD-'));
+      if (hasLegacyIds) {
+        const sortedLegacy = [...orders].sort((a, b) => {
+          const numA = parseInt(String(a.id).replace(/\D/g, ''), 10) || 0;
+          const numB = parseInt(String(b.id).replace(/\D/g, ''), 10) || 0;
+          return numA - numB;
+        });
+        orders = sortedLegacy.map((o, idx) => ({
+          ...o,
+          id: String(idx + 1).padStart(2, '0')
+        }));
+      } else {
+        orders.sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
+      }
+    }
+
+    function getNextOrderId() {
+      const maxNum = orders.reduce((max, o) => {
+        const num = parseInt(String(o.id).replace(/\D/g, ''), 10) || 0;
+        return num > max ? num : max;
+      }, 0);
+      return String(maxNum + 1).padStart(2, '0');
+    }
 
     let materials = JSON.parse(localStorage.getItem(STORAGE_MATERIALS_KEY)) || [
       {
@@ -654,16 +683,18 @@
       const statusFilter = document.getElementById('filterStatus').value;
       const payFilter = document.getElementById('filterPayment').value;
 
-      const filtered = orders.filter(o => {
-        const matchSearch =
-          o.client.toLowerCase().includes(search) ||
-          o.item.toLowerCase().includes(search) ||
-          o.material.toLowerCase().includes(search) ||
-          o.id.toLowerCase().includes(search);
-        const matchStatus = statusFilter === 'ALL' || o.status === statusFilter;
-        const matchPay = payFilter === 'ALL' || o.payment === payFilter;
-        return matchSearch && matchStatus && matchPay;
-      });
+      const filtered = orders
+        .filter(o => {
+          const matchSearch =
+            o.client.toLowerCase().includes(search) ||
+            o.item.toLowerCase().includes(search) ||
+            o.material.toLowerCase().includes(search) ||
+            o.id.toLowerCase().includes(search);
+          const matchStatus = statusFilter === 'ALL' || o.status === statusFilter;
+          const matchPay = payFilter === 'ALL' || o.payment === payFilter;
+          return matchSearch && matchStatus && matchPay;
+        })
+        .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
 
       document.getElementById('badgeOrdersCount').textContent = orders.length;
       document.getElementById('tableOrdersCountLabel').textContent = `${filtered.length} pedido(s)`;
@@ -799,6 +830,7 @@
       document.getElementById('orderDate').value = today;
       document.getElementById('orderDeliveryDate').value = today;
       document.getElementById('orderQty').value = 1;
+      document.getElementById('orderCost').value = 0;
       updateOrderTotalPreview();
       document.getElementById('orderModal').classList.remove('hidden');
     }
@@ -831,7 +863,7 @@
       e.preventDefault();
       const existingId = document.getElementById('orderId').value;
       const data = {
-        id: existingId || `ORD-${100 + orders.length + 1}`,
+        id: existingId || getNextOrderId(),
         client: document.getElementById('orderClient').value,
         phone: document.getElementById('orderPhone').value,
         item: document.getElementById('orderItem').value,
@@ -848,10 +880,10 @@
       if (existingId) {
         const idx = orders.findIndex(x => x.id === existingId);
         if (idx > -1) orders[idx] = data;
-        showToast('Pedido atualizado!');
+        showToast(`Pedido #${data.id} atualizado!`);
       } else {
-        orders.unshift(data);
-        showToast('Pedido adicionado!');
+        orders.push(data);
+        showToast(`Pedido #${data.id} adicionado!`);
       }
 
       closeOrderModal();
@@ -875,13 +907,11 @@
       saveAll();
       if (o.payment === 'Pago') {
         showToast('Pagamento confirmado! Lucro contabilizado.');
-      } else {
-        showToast(`Pagamento alterado para: ${o.payment}`);
       }
     }
 
     function requestDeleteOrder(id) {
-      openConfirmDeleteModal(`Deseja excluir o pedido ${id}?`, () => {
+      openConfirmDeleteModal(`Deseja realmente excluir o pedido ${id}?`, () => {
         orders = orders.filter(x => x.id !== id);
         saveAll();
         showToast('Pedido removido.');
@@ -950,14 +980,14 @@
     }
 
     function requestDeleteMaterial(id) {
-      openConfirmDeleteModal('Deseja remover este item de material?', () => {
+      openConfirmDeleteModal('Deseja realmente remover este item de material?', () => {
         materials = materials.filter(x => x.id !== id);
         saveAll();
         showToast('Material removido.');
       });
     }
 
-    // Exportar PDF Vetorial
+    // Exportar PDF Vetorial Profissional com Logomarca
     function openPdfOptionsModal() {
       document.getElementById('pdfOptionsModal').classList.remove('hidden');
     }
@@ -966,66 +996,286 @@
       document.getElementById('pdfOptionsModal').classList.add('hidden');
     }
 
+    // Desenha a logomarca vetorial oficial do Luan 3D Studio no documento jsPDF
+    function drawBrandLogoOnPDF(doc, cx, cy, r) {
+      // Círculo branco de fundo com borda escura
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(31, 41, 51);
+      doc.setLineWidth(0.7);
+      doc.circle(cx, cy, r, 'FD');
+
+      const s = r / 50; // Fator de escala baseado no viewBox 100x100
+      const ox = cx - r;
+      const oy = cy - r;
+
+      // Estrutura da impressora 3D
+      doc.setDrawColor(31, 41, 51);
+      doc.setLineWidth(1.1);
+      doc.roundedRect(ox + 22 * s, oy + 20 * s, 56 * s, 54 * s, 2.2, 2.2, 'S');
+      doc.line(ox + 22 * s, oy + 35 * s, ox + 78 * s, oy + 35 * s);
+
+      // Extrusora (cabeçote + bico)
+      doc.setFillColor(31, 41, 51);
+      doc.roundedRect(ox + 43 * s, oy + 28 * s, 14 * s, 14 * s, 0.8, 0.8, 'F');
+      doc.triangle(
+        ox + 46 * s, oy + 42 * s,
+        ox + 54 * s, oy + 42 * s,
+        ox + 50 * s, oy + 49 * s,
+        'F'
+      );
+
+      // Filamento laranja superior e extrudado na mesa
+      doc.setDrawColor(249, 115, 22);
+      doc.setLineWidth(0.95);
+      doc.line(ox + 50 * s, oy + 13 * s, ox + 50 * s, oy + 28 * s);
+      doc.lines(
+        [
+          [0, 8 * s],
+          [-13 * s, 11 * s],
+          [22 * s, 2 * s]
+        ],
+        ox + 50 * s,
+        oy + 49 * s
+      );
+
+      // Cubo 3D isométrico azul no canto inferior direito
+      const p1 = [ox + 68 * s, oy + 54 * s];
+      const p2 = [ox + 83 * s, oy + 62 * s];
+      const p3 = [ox + 83 * s, oy + 79 * s];
+      const p4 = [ox + 68 * s, oy + 87 * s];
+      const p5 = [ox + 53 * s, oy + 79 * s];
+      const p6 = [ox + 53 * s, oy + 62 * s];
+      const pc = [ox + 68 * s, oy + 70 * s];
+
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(29, 78, 216);
+      doc.setLineWidth(0.95);
+
+      // Preenche o hexágono do cubo com dois triângulos/quadriláteros brancos
+      doc.triangle(p1[0], p1[1], p2[0], p2[1], p4[0], p4[1], 'F');
+      doc.triangle(p2[0], p2[1], p3[0], p3[1], p4[0], p4[1], 'F');
+      doc.triangle(p1[0], p1[1], p4[0], p4[1], p6[0], p6[1], 'F');
+      doc.triangle(p6[0], p6[1], p4[0], p4[1], p5[0], p5[1], 'F');
+
+      // Contorno externo e arestas internas do cubo
+      doc.line(p1[0], p1[1], p2[0], p2[1]);
+      doc.line(p2[0], p2[1], p3[0], p3[1]);
+      doc.line(p3[0], p3[1], p4[0], p4[1]);
+      doc.line(p4[0], p4[1], p5[0], p5[1]);
+      doc.line(p5[0], p5[1], p6[0], p6[1]);
+      doc.line(p6[0], p6[1], p1[0], p1[1]);
+
+      doc.setLineWidth(0.75);
+      doc.line(p6[0], p6[1], pc[0], pc[1]);
+      doc.line(p2[0], p2[1], pc[0], pc[1]);
+      doc.line(pc[0], pc[1], p4[0], p4[1]);
+    }
+
     function generateVectorPDF() {
       const filter = document.getElementById('pdfStatusFilter').value;
       closePdfOptionsModal();
 
-      const filteredOrders = orders.filter(o => {
-        if (filter === 'QUEUE_PRINTING') return o.status === 'Na Fila' || o.status === 'Imprimindo';
-        if (filter === 'ALL') return true;
-        return o.status === filter;
+      const filterLabels = {
+        QUEUE_PRINTING: 'Na Fila + Imprimindo',
+        'Na Fila': 'Apenas Na Fila',
+        Imprimindo: 'Apenas Imprimindo',
+        ALL: 'Todos os Pedidos'
+      };
+
+      const filteredOrders = orders
+        .filter(o => {
+          if (filter === 'QUEUE_PRINTING') return o.status === 'Na Fila' || o.status === 'Imprimindo';
+          if (filter === 'ALL') return true;
+          return o.status === filter;
+        })
+        .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
+
+      let grossTotal = 0;
+      let pendingTotal = 0;
+      let totalPieces = 0;
+
+      filteredOrders.forEach(o => {
+        const qty = Number(o.qty) || 1;
+        const unit = Number(o.unitPrice) || 0;
+        const cost = Number(o.cost) || 0;
+        const total = (qty * unit) + cost;
+
+        grossTotal += total;
+        totalPieces += qty;
+
+        if (o.payment === 'Pendente') pendingTotal += total;
+        else if (o.payment === '50% Sinal') pendingTotal += total / 2;
       });
-      const grossTotal = filteredOrders.reduce((acc, o) => acc + ((Number(o.qty) || 1) * (Number(o.unitPrice) || 0)) + (Number(o.cost) || 0), 0);
 
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
-      doc.setFillColor(31, 41, 51);
-      doc.rect(0, 0, 210, 28, 'F');
+      // Cabeçalho Superior Institucional
+      doc.setFillColor(31, 41, 51); // #1F2933
+      doc.rect(0, 0, pageWidth, 36, 'F');
+
+      // Faixa de destaque laranja/azul na base do cabeçalho
+      doc.setFillColor(29, 78, 216); // #1D4ED8
+      doc.rect(0, 36, pageWidth * 0.7, 1.8, 'F');
+      doc.setFillColor(249, 115, 22); // #F97316
+      doc.rect(pageWidth * 0.7, 36, pageWidth * 0.3, 1.8, 'F');
+
+      // Logomarca Vetorial Oficial no cabeçalho
+      drawBrandLogoOnPDF(doc, 24, 18, 10.5);
+
+      // Nome do Estúdio ao lado da Logomarca
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text('LUAN 3D STUDIO - Relatório de Produção & Pedidos', 14, 17);
+      doc.text('Luan', 39, 16.5);
+      const luanWidth = doc.getTextWidth('Luan ');
+      doc.setTextColor(96, 165, 250); // Azul claro destaque
+      doc.text('3D Studio', 39 + luanWidth, 16.5);
 
-      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Emitido em: ${new Date().toLocaleDateString('pt-BR')}`, 160, 17);
+      doc.setFontSize(9.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text('Relatório Oficial de Produção & Controle de Pedidos', 39, 23);
 
-      // Card Faturamento Bruto
-      doc.setFillColor(239, 246, 255);
-      doc.roundedRect(14, 35, 90, 22, 3, 3, 'F');
-      doc.setTextColor(29, 78, 216);
-      doc.setFontSize(9);
+      // Metadados à direita no cabeçalho
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('pt-BR');
+      const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      doc.setFontSize(8.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Emitido em: ${dateStr} às ${timeStr}`, pageWidth - 14, 15, { align: 'right' });
       doc.setFont('helvetica', 'bold');
-      doc.text('FATURAMENTO BRUTO (LISTADOS)', 19, 43);
-      doc.setFontSize(14);
-      doc.text(formatCurrency(grossTotal), 19, 52);
+      doc.setTextColor(251, 146, 60);
+      doc.text(`Filtro: ${filterLabels[filter] || filter}`, pageWidth - 14, 21.5, { align: 'right' });
 
+      // Seção de Cards Resumo (3 colunas)
+      const cardY = 44;
+      const cardH = 22;
+      const gap = 5;
+      const cardW = (pageWidth - 28 - (gap * 2)) / 3;
+
+      // Card 1: Faturamento Bruto
+      doc.setFillColor(239, 246, 255);
+      doc.setDrawColor(191, 219, 254);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(14, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+      doc.setFillColor(29, 78, 216);
+      doc.rect(14, cardY, 2, cardH, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text('FATURAMENTO BRUTO (LISTADOS)', 19, cardY + 7.5);
+      doc.setFontSize(13);
+      doc.setTextColor(29, 78, 216);
+      doc.text(formatCurrency(grossTotal), 19, cardY + 16.5);
+
+      // Card 2: Saldo a Receber
+      const card2X = 14 + cardW + gap;
+      doc.setFillColor(255, 247, 237);
+      doc.setDrawColor(254, 215, 170);
+      doc.roundedRect(card2X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+      doc.setFillColor(249, 115, 22);
+      doc.rect(card2X, cardY, 2, cardH, 'F');
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text('SALDO A RECEBER (ABERTO)', card2X + 5, cardY + 7.5);
+      doc.setFontSize(13);
+      doc.setTextColor(234, 88, 12);
+      doc.text(formatCurrency(pendingTotal), card2X + 5, cardY + 16.5);
+
+      // Card 3: Volume de Produção
+      const card3X = card2X + cardW + gap;
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(card3X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+      doc.setFillColor(31, 41, 51);
+      doc.rect(card3X, cardY, 2, cardH, 'F');
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text('VOLUME NA FILA FILTRADA', card3X + 5, cardY + 7.5);
+      doc.setFontSize(12);
+      doc.setTextColor(31, 41, 51);
+      doc.text(`${filteredOrders.length} pedido(s) • ${totalPieces} peça(s)`, card3X + 5, cardY + 16.5);
+
+      // Tabela Profissional de Pedidos
       const rows = filteredOrders.map(o => {
         const qty = Number(o.qty) || 1;
         const unit = Number(o.unitPrice) || 0;
         const cost = Number(o.cost) || 0;
+        const unitDesc = `${qty}x ${formatCurrency(unit)}${cost > 0 ? `\n(+${formatCurrency(cost)} outros)` : ''}`;
         return [
           o.id,
-          o.item,
-          o.client,
-          `${formatDateBR(o.orderDate)} / ${formatDateBR(o.deliveryDate)}`,
-          o.status,
-          `${qty}x ${formatCurrency(unit)}${cost > 0 ? ` (+${formatCurrency(cost)})` : ''}`,
+          `${o.item}\nMat: ${o.material}`,
+          o.client + (o.phone ? `\n${o.phone}` : ''),
+          `Ped: ${formatDateBR(o.orderDate)}\nEnt: ${formatDateBR(o.deliveryDate)}`,
+          `${o.status}\n[${o.payment}]`,
+          unitDesc,
           formatCurrency((qty * unit) + cost)
         ];
       });
 
       doc.autoTable({
-        startY: 64,
-        head: [['ID', 'Peça', 'Cliente', 'Pedido / Entrega', 'Status', 'Unit. × Qtd.', 'Total']],
+        startY: 73,
+        head: [['ID', 'Projeto / Material', 'Cliente', 'Datas', 'Status / Pgto.', 'Detalhamento', 'Total']],
         body: rows,
-        headStyles: { fillColor: [29, 78, 216] },
-        styles: { fontSize: 8.5 }
+        theme: 'grid',
+        headStyles: {
+          fillColor: [31, 41, 51],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 8.5,
+          cellPadding: 3
+        },
+        bodyStyles: {
+          fontSize: 8,
+          textColor: [30, 41, 59],
+          cellPadding: 2.8,
+          valign: 'middle'
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        columnStyles: {
+          0: { fontStyle: 'bold', textColor: [29, 78, 216], cellWidth: 18 },
+          1: { cellWidth: 48 },
+          2: { cellWidth: 34 },
+          3: { cellWidth: 26 },
+          4: { cellWidth: 24, fontStyle: 'bold' },
+          5: { cellWidth: 24, halign: 'right' },
+          6: { cellWidth: 22, halign: 'right', fontStyle: 'bold', textColor: [15, 23, 42] }
+        },
+        didParseCell: function(data) {
+          if (data.section === 'body' && data.column.index === 4) {
+            const text = String(data.cell.raw || '');
+            if (text.includes('[Pago]')) {
+              data.cell.styles.textColor = [5, 150, 105];
+            } else if (text.includes('[50% Sinal]')) {
+              data.cell.styles.textColor = [234, 88, 12];
+            } else {
+              data.cell.styles.textColor = [225, 29, 72];
+            }
+          }
+        },
+        didDrawPage: function(data) {
+          // Rodapé institucional em todas as páginas
+          const pageCount = doc.internal.getNumberOfPages();
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.3);
+          doc.line(14, pageHeight - 14, pageWidth - 14, pageHeight - 14);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.text('Luan 3D Studio • Gestão de Impressão 3D & Produção', 14, pageHeight - 9);
+          doc.text(`Página ${data.pageNumber} de ${pageCount}`, pageWidth - 14, pageHeight - 9, { align: 'right' });
+        }
       });
 
-      doc.save(`pedidos_luan_3d_studio_${new Date().toISOString().split('T')[0]}.pdf`);
-      showToast('PDF baixado com sucesso!');
+      doc.save(`relatorio_luan_3d_studio_${now.toISOString().split('T')[0]}.pdf`);
+      showToast('PDF profissional exportado com sucesso!');
     }
 
     // Backup e Restauração
@@ -1069,7 +1319,8 @@
 
     window.onload = function() {
       initTheme();
-      renderAll();
+      normalizeOrderIds();
+      saveAll();
     };
   </script>
 </body>
