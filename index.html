@@ -152,6 +152,10 @@
           <span>🧵</span> Custos & Materiais
           <span id="badgeMaterialsCount" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">0</span>
         </button>
+        <button id="tabTasksBtn" onclick="switchTab('tasks')" class="px-4 py-2.5 rounded-xl text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition">
+          <span>✅</span> Tarefas
+          <span id="badgeTasksCount" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">0</span>
+        </button>
       </div>
     </div>
 
@@ -252,6 +256,43 @@
               </tr>
             </thead>
             <tbody id="materialsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: TAREFAS / LEMBRETES -->
+    <section id="sectionTasks" class="hidden space-y-5">
+      <!-- Barra Superior da Aba Tarefas -->
+      <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span>📌</span> Lista de Tarefas & Pendências do Estúdio
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">Anote lembretes, manutenções na impressora, compras ou ajustes pendentes. Clique no status para alternar.</p>
+        </div>
+        <button onclick="openTaskModal()" class="px-4 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-blue-800 text-white text-sm font-bold shadow-sm flex items-center gap-2 transition shrink-0 self-start sm:self-auto">
+          <span>+</span> <span>Adicionar Tarefa</span>
+        </button>
+      </div>
+
+      <!-- Tabela de Tarefas -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <h3 class="font-bold text-slate-900 dark:text-white">📝 Minhas Anotações</h3>
+          <span id="tasksCountLabel" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">0 tarefa(s)</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <th class="py-3.5 px-6">Comentário / O que fazer</th>
+                <th class="py-3.5 px-4 w-36">Data</th>
+                <th class="py-3.5 px-4 w-40">Status</th>
+                <th class="py-3.5 px-6 text-right w-28">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tasksTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"></tbody>
           </table>
         </div>
       </div>
@@ -410,27 +451,41 @@
     </div>
   </div>
 
-  <!-- MODAL: OPÇÕES DE PDF -->
-  <div id="pdfOptionsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-        <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">Exportar Relatório PDF</h3>
-        <button onclick="closePdfOptionsModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
+  <!-- MODAL: NOVA / EDITAR TAREFA -->
+  <div id="taskModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+        <h3 id="taskModalTitle" class="text-lg font-extrabold text-slate-900 dark:text-white">Nova Tarefa</h3>
+        <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
       </div>
-      <p class="text-xs text-slate-500 dark:text-slate-400">O relatório exibirá o card de <strong>Faturamento Bruto</strong> e a lista filtrada de pedidos abaixo:</p>
-      <div>
-        <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Filtrar Status de Produção</label>
-        <select id="pdfStatusFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold">
-          <option value="QUEUE_PRINTING">Na Fila + Imprimindo</option>
-          <option value="Na Fila">Apenas Na Fila</option>
-          <option value="Imprimindo">Apenas Imprimindo</option>
-          <option value="ALL">Todos os Pedidos</option>
-        </select>
-      </div>
-      <div class="flex justify-end gap-3 pt-3">
-        <button onclick="closePdfOptionsModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold">Cancelar</button>
-        <button onclick="generateVectorPDF()" class="px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-blue-800 text-white text-sm font-bold shadow-sm">Baixar PDF</button>
-      </div>
+
+      <form id="taskForm" onsubmit="saveTask(event)" class="space-y-4 mt-4">
+        <input type="hidden" id="taskId" />
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Comentário / O que fazer *</label>
+          <textarea id="taskNote" required rows="3" placeholder="Ex: Nivelar mesa da impressora, comprar bico 0.4mm, enviar prévia para cliente..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Data *</label>
+            <input id="taskDate" required type="date" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Status</label>
+            <select id="taskStatus" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-bold">
+              <option value="Aberto">🔴 Aberto</option>
+              <option value="Concluído">🟢 Concluído</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" onclick="closeTaskModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-blue-800 text-white text-sm font-bold shadow-sm">Salvar Tarefa</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -473,6 +528,7 @@
   <script>
     const STORAGE_ORDERS_KEY = 'luan3d_orders_v2';
     const STORAGE_MATERIALS_KEY = 'luan3d_materials_v2';
+    const STORAGE_TASKS_KEY = 'luan3d_tasks_v2';
     const STORAGE_THEME_KEY = 'luan3d_theme';
 
     // Dados reais embutidos como padrão em ordem crescente (01, 02...)
@@ -544,6 +600,8 @@
       }
     ];
 
+    let tasks = JSON.parse(localStorage.getItem(STORAGE_TASKS_KEY)) || [];
+
     let pendingDeleteAction = null;
 
     function formatCurrency(val) {
@@ -568,6 +626,7 @@
       try {
         localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
         localStorage.setItem(STORAGE_MATERIALS_KEY, JSON.stringify(materials));
+        localStorage.setItem(STORAGE_TASKS_KEY, JSON.stringify(tasks));
       } catch (e) {
         console.warn('Erro ao salvar no localStorage:', e);
       }
@@ -611,16 +670,26 @@
     // Alternância de Abas
     function switchTab(tab) {
       const isOrders = tab === 'orders';
+      const isMaterials = tab === 'materials';
+      const isTasks = tab === 'tasks';
+
       document.getElementById('sectionOrders').classList.toggle('hidden', !isOrders);
-      document.getElementById('sectionMaterials').classList.toggle('hidden', isOrders);
+      document.getElementById('sectionMaterials').classList.toggle('hidden', !isMaterials);
+      document.getElementById('sectionTasks').classList.toggle('hidden', !isTasks);
+
+      const inactiveClass = 'px-4 py-2.5 rounded-xl text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition';
 
       document.getElementById('tabOrdersBtn').className = isOrders
         ? 'px-4 py-2.5 rounded-xl text-sm font-bold bg-[#1D4ED8] text-white shadow-sm flex items-center gap-2 transition'
-        : 'px-4 py-2.5 rounded-xl text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition';
+        : inactiveClass;
 
-      document.getElementById('tabMaterialsBtn').className = !isOrders
+      document.getElementById('tabMaterialsBtn').className = isMaterials
         ? 'px-4 py-2.5 rounded-xl text-sm font-bold bg-[#F97316] text-white shadow-sm flex items-center gap-2 transition'
-        : 'px-4 py-2.5 rounded-xl text-sm font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition';
+        : inactiveClass;
+
+      document.getElementById('tabTasksBtn').className = isTasks
+        ? 'px-4 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-2 transition'
+        : inactiveClass;
     }
 
     // Dashboard Financeiro:
@@ -812,109 +881,109 @@
       updateKPIs();
       renderOrders();
       renderMaterials();
+      renderTasks();
     }
 
-    // Modal de Pedidos
-    function updateOrderTotalPreview() {
-      const qty = Number(document.getElementById('orderQty').value) || 0;
-      const unit = Number(document.getElementById('orderUnitPrice').value) || 0;
-      const cost = Number(document.getElementById('orderCost').value) || 0;
-      document.getElementById('orderTotalPreview').textContent = formatCurrency((qty * unit) + cost);
+    // Renderizar Tabela de Tarefas
+    function renderTasks() {
+      const openCount = tasks.filter(t => t.status !== 'Concluído').length;
+      document.getElementById('badgeTasksCount').textContent = openCount;
+      document.getElementById('tasksCountLabel').textContent = `${tasks.length} tarefa(s) • ${openCount} em aberto`;
+
+      const tbody = document.getElementById('tasksTableBody');
+      if (tasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-slate-400">Nenhuma tarefa anotada ainda. Clique em "+ Adicionar Tarefa" para criar um lembrete.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = tasks.map(t => {
+        const isDone = t.status === 'Concluído';
+        const statusBadgeClass = isDone
+          ? 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800'
+          : 'bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800';
+        const dotClass = isDone ? 'bg-emerald-500' : 'bg-rose-500';
+        const textStyle = isDone ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-100 font-medium';
+
+        return `
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+            <td class="py-4 px-6 ${textStyle} whitespace-pre-line">${t.note}</td>
+            <td class="py-4 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400">${formatDateBR(t.date)}</td>
+            <td class="py-4 px-4">
+              <button onclick="toggleTaskStatus('${t.id}')" title="Clique para alternar entre Aberto e Concluído" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border ${statusBadgeClass} hover:opacity-85 transition">
+                <span class="w-2 h-2 rounded-full ${dotClass}"></span>
+                <span>${t.status}</span>
+              </button>
+            </td>
+            <td class="py-4 px-6 text-right space-x-1">
+              <button onclick="editTask('${t.id}')" title="Editar Tarefa" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">✏️</button>
+              <button onclick="requestDeleteTask('${t.id}')" title="Excluir Tarefa" class="p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-500">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
-    function openOrderModal() {
-      document.getElementById('orderForm').reset();
-      document.getElementById('orderId').value = '';
-      document.getElementById('orderModalTitle').textContent = 'Novo Pedido 3D';
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('orderDate').value = today;
-      document.getElementById('orderDeliveryDate').value = today;
-      document.getElementById('orderQty').value = 1;
-      document.getElementById('orderCost').value = 0;
-      updateOrderTotalPreview();
-      document.getElementById('orderModal').classList.remove('hidden');
+    // Modal e Ações de Tarefas
+    function openTaskModal() {
+      document.getElementById('taskForm').reset();
+      document.getElementById('taskId').value = '';
+      document.getElementById('taskModalTitle').textContent = 'Nova Tarefa';
+      document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('taskStatus').value = 'Aberto';
+      document.getElementById('taskModal').classList.remove('hidden');
     }
 
-    function closeOrderModal() {
-      document.getElementById('orderModal').classList.add('hidden');
+    function closeTaskModal() {
+      document.getElementById('taskModal').classList.add('hidden');
     }
 
-    function editOrder(id) {
-      const o = orders.find(x => x.id === id);
-      if (!o) return;
-      document.getElementById('orderId').value = o.id;
-      document.getElementById('orderModalTitle').textContent = `Editar Pedido ${o.id}`;
-      document.getElementById('orderClient').value = o.client;
-      document.getElementById('orderPhone').value = o.phone || '';
-      document.getElementById('orderItem').value = o.item;
-      document.getElementById('orderDate').value = o.orderDate || '';
-      document.getElementById('orderDeliveryDate').value = o.deliveryDate || '';
-      document.getElementById('orderMaterial').value = o.material;
-      document.getElementById('orderQty').value = o.qty || 1;
-      document.getElementById('orderUnitPrice').value = o.unitPrice || 0;
-      document.getElementById('orderCost').value = o.cost || 0;
-      document.getElementById('orderStatus').value = o.status;
-      document.getElementById('orderPayment').value = o.payment;
-      updateOrderTotalPreview();
-      document.getElementById('orderModal').classList.remove('hidden');
+    function editTask(id) {
+      const t = tasks.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById('taskId').value = t.id;
+      document.getElementById('taskModalTitle').textContent = 'Editar Tarefa';
+      document.getElementById('taskNote').value = t.note;
+      document.getElementById('taskDate').value = t.date || '';
+      document.getElementById('taskStatus').value = t.status || 'Aberto';
+      document.getElementById('taskModal').classList.remove('hidden');
     }
 
-    function saveOrder(e) {
+    function saveTask(e) {
       e.preventDefault();
-      const existingId = document.getElementById('orderId').value;
+      const existingId = document.getElementById('taskId').value;
       const data = {
-        id: existingId || getNextOrderId(),
-        client: document.getElementById('orderClient').value,
-        phone: document.getElementById('orderPhone').value,
-        item: document.getElementById('orderItem').value,
-        orderDate: document.getElementById('orderDate').value,
-        deliveryDate: document.getElementById('orderDeliveryDate').value,
-        material: document.getElementById('orderMaterial').value,
-        qty: Number(document.getElementById('orderQty').value) || 1,
-        unitPrice: Number(document.getElementById('orderUnitPrice').value) || 0,
-        cost: Number(document.getElementById('orderCost').value) || 0,
-        status: document.getElementById('orderStatus').value,
-        payment: document.getElementById('orderPayment').value
+        id: existingId || ('TSK-' + Date.now()),
+        note: document.getElementById('taskNote').value.trim(),
+        date: document.getElementById('taskDate').value,
+        status: document.getElementById('taskStatus').value
       };
 
       if (existingId) {
-        const idx = orders.findIndex(x => x.id === existingId);
-        if (idx > -1) orders[idx] = data;
-        showToast(`Pedido #${data.id} atualizado!`);
+        const idx = tasks.findIndex(x => x.id === existingId);
+        if (idx > -1) tasks[idx] = data;
+        showToast('Tarefa atualizada!');
       } else {
-        orders.push(data);
-        showToast(`Pedido #${data.id} adicionado!`);
+        tasks.unshift(data);
+        showToast('Tarefa adicionada!');
       }
 
-      closeOrderModal();
+      closeTaskModal();
       saveAll();
     }
 
-    function quickUpdateStatus(id, newStatus) {
-      const o = orders.find(x => x.id === id);
-      if (o) {
-        o.status = newStatus;
-        saveAll();
-        showToast(`Status alterado para ${newStatus}`);
-      }
-    }
-
-    function cyclePayment(id) {
-      const o = orders.find(x => x.id === id);
-      if (!o) return;
-      const cycle = ['Pendente', '50% Sinal', 'Pago'];
-      o.payment = cycle[(cycle.indexOf(o.payment) + 1) % cycle.length];
+    function toggleTaskStatus(id) {
+      const t = tasks.find(x => x.id === id);
+      if (!t) return;
+      t.status = t.status === 'Concluído' ? 'Aberto' : 'Concluído';
       saveAll();
-      if (o.payment === 'Pago') {
-        showToast('Pagamento confirmado! Lucro contabilizado.');
-      }
+      showToast(t.status === 'Concluído' ? 'Tarefa concluída!' : 'Tarefa reaberta.');
     }
 
-    function requestDeleteOrder(id) {
-      openConfirmDeleteModal(`Deseja realmente excluir o pedido ${id}?`, () => {
-        orders = orders.filter(x => x.id !== id);
+    function requestDeleteTask(id) {
+      openConfirmDeleteModal('Deseja realmente excluir esta tarefa?', () => {
+        tasks = tasks.filter(x => x.id !== id);
         saveAll();
-        showToast('Pedido removido.');
+        showToast('Tarefa removida.');
       });
     }
 
@@ -1288,7 +1357,7 @@
     }
 
     function exportBackupJSON() {
-      const payload = { orders, materials, exportedAt: new Date().toISOString() };
+      const payload = { orders, materials, tasks, exportedAt: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -1307,6 +1376,7 @@
           const parsed = JSON.parse(evt.target.result);
           if (Array.isArray(parsed.orders)) orders = parsed.orders;
           if (Array.isArray(parsed.materials)) materials = parsed.materials;
+          if (Array.isArray(parsed.tasks)) tasks = parsed.tasks;
           saveAll();
           closeBackupModal();
           showToast('Backup restaurado com sucesso!');
