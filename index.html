@@ -39,8 +39,77 @@
       }
     };
   </script>
+  <style>
+    @keyframes pinShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .animate-pin-shake {
+      animation: pinShake 0.35s ease-in-out;
+    }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 min-h-screen font-sans">
+
+  <!-- Tela de Bloqueio por PIN (6524) -->
+  <div id="pinLockScreen" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xs w-full p-7 shadow-2xl text-center space-y-6">
+      <!-- Logomarca -->
+      <div class="flex flex-col items-center gap-2.5">
+        <div class="w-16 h-16 rounded-full border-2 border-[#1F2933] dark:border-slate-300 bg-white flex items-center justify-center shadow-md">
+          <svg viewBox="0 0 100 100" class="w-12 h-12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="18" width="60" height="58" rx="8" stroke="#1F2933" stroke-width="7"/>
+            <line x1="20" y1="34" x2="80" y2="34" stroke="#1F2933" stroke-width="5"/>
+            <rect x="43" y="27" width="14" height="15" rx="3" fill="#1F2933"/>
+            <polygon points="46,42 54,42 50,49" fill="#1F2933"/>
+            <path d="M50 12 C52 18, 48 22, 50 27" stroke="#F97316" stroke-width="4" stroke-linecap="round"/>
+            <path d="M50 49 C50 60, 32 58, 36 68 C40 76, 58 62, 62 70" stroke="#F97316" stroke-width="4.5" stroke-linecap="round"/>
+            <polygon points="68,54 84,63 84,81 68,90 52,81 52,63" fill="white" stroke="#2563EB" stroke-width="5.5" stroke-linejoin="round"/>
+            <polyline points="52,63 68,72 84,63" stroke="#2563EB" stroke-width="4.5" stroke-linejoin="round"/>
+            <line x1="68" y1="72" x2="68" y2="90" stroke="#2563EB" stroke-width="4.5"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-extrabold tracking-tight text-[#1F2933] dark:text-white">
+            LUAN <span class="text-[#2563EB] dark:text-blue-400">3D STUDIO</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-lock text-[#F97316]"></i> Digite o PIN de 4 dígitos
+          </p>
+        </div>
+      </div>
+
+      <!-- Bolinhas indicadoras do PIN -->
+      <div class="space-y-2">
+        <div id="pinDotsContainer" class="flex items-center justify-center gap-4 py-2">
+          <span id="pinDot0" class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150"></span>
+          <span id="pinDot1" class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150"></span>
+          <span id="pinDot2" class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150"></span>
+          <span id="pinDot3" class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150"></span>
+        </div>
+        <p id="pinErrorMsg" class="text-xs font-bold text-rose-500 h-4"></p>
+      </div>
+
+      <!-- Teclado Numérico Tátil -->
+      <div class="grid grid-cols-3 gap-2.5 select-none">
+        <button type="button" onclick="enterPinDigit('1')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">1</button>
+        <button type="button" onclick="enterPinDigit('2')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">2</button>
+        <button type="button" onclick="enterPinDigit('3')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">3</button>
+        <button type="button" onclick="enterPinDigit('4')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">4</button>
+        <button type="button" onclick="enterPinDigit('5')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">5</button>
+        <button type="button" onclick="enterPinDigit('6')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">6</button>
+        <button type="button" onclick="enterPinDigit('7')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">7</button>
+        <button type="button" onclick="enterPinDigit('8')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">8</button>
+        <button type="button" onclick="enterPinDigit('9')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">9</button>
+        <button type="button" onclick="clearPinInput()" title="Limpar" class="h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 active:scale-95 text-xs font-bold text-rose-600 dark:text-rose-400 transition">Limpar</button>
+        <button type="button" onclick="enterPinDigit('0')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">0</button>
+        <button type="button" onclick="backspacePinDigit()" title="Apagar" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-sm font-bold text-slate-600 dark:text-slate-300 transition">
+          <i class="fa-solid fa-delete-left"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Cabeçalho -->
   <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
@@ -76,6 +145,9 @@
 
       <!-- Ações do Cabeçalho -->
       <div class="flex items-center gap-2 shrink-0">
+        <button onclick="lockApp()" title="Bloquear Tela (PIN)" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200">
+          <i class="fa-solid fa-lock"></i>
+        </button>
         <button onclick="toggleTheme()" title="Alternar Tema Claro/Escuro" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200">
           <i id="themeIcon" class="fa-solid fa-moon"></i>
         </button>
@@ -1726,8 +1798,100 @@
     // =========================================================================
     // 11. INICIALIZAÇÃO
     // =========================================================================
+    // 11. BLOQUEIO POR PIN (6524) & INICIALIZAÇÃO
+    // =========================================================================
+    const APP_PIN_CODE = '6524';
+    const PIN_SESSION_KEY = 'luan3d_unlocked_session';
+    let currentPinBuffer = '';
+
+    function updatePinDots(isError = false) {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`pinDot${i}`);
+        if (!dot) continue;
+        if (isError) {
+          dot.className = 'w-4 h-4 rounded-full bg-rose-500 border-2 border-rose-500 scale-110 transition-all duration-150';
+        } else if (i < currentPinBuffer.length) {
+          dot.className = 'w-4 h-4 rounded-full bg-[#2563EB] border-2 border-[#2563EB] scale-110 transition-all duration-150';
+        } else {
+          dot.className = 'w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150';
+        }
+      }
+    }
+
+    function enterPinDigit(digit) {
+      if (currentPinBuffer.length >= 4) return;
+      document.getElementById('pinErrorMsg').textContent = '';
+      currentPinBuffer += String(digit);
+      updatePinDots(false);
+
+      if (currentPinBuffer.length === 4) {
+        if (currentPinBuffer === APP_PIN_CODE) {
+          sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+          document.getElementById('pinLockScreen').classList.add('hidden');
+          currentPinBuffer = '';
+          updatePinDots(false);
+        } else {
+          updatePinDots(true);
+          document.getElementById('pinErrorMsg').textContent = 'PIN incorreto. Tente novamente.';
+          const container = document.getElementById('pinDotsContainer');
+          container.classList.remove('animate-pin-shake');
+          void container.offsetWidth;
+          container.classList.add('animate-pin-shake');
+          setTimeout(() => {
+            currentPinBuffer = '';
+            updatePinDots(false);
+          }, 550);
+        }
+      }
+    }
+
+    function backspacePinDigit() {
+      if (!currentPinBuffer.length) return;
+      currentPinBuffer = currentPinBuffer.slice(0, -1);
+      document.getElementById('pinErrorMsg').textContent = '';
+      updatePinDots(false);
+    }
+
+    function clearPinInput() {
+      currentPinBuffer = '';
+      document.getElementById('pinErrorMsg').textContent = '';
+      updatePinDots(false);
+    }
+
+    function lockApp() {
+      sessionStorage.removeItem(PIN_SESSION_KEY);
+      currentPinBuffer = '';
+      document.getElementById('pinErrorMsg').textContent = '';
+      updatePinDots(false);
+      document.getElementById('pinLockScreen').classList.remove('hidden');
+    }
+
+    function initPinLock() {
+      if (sessionStorage.getItem(PIN_SESSION_KEY) === 'true') {
+        document.getElementById('pinLockScreen').classList.add('hidden');
+      } else {
+        document.getElementById('pinLockScreen').classList.remove('hidden');
+      }
+
+      document.addEventListener('keydown', (e) => {
+        const lockEl = document.getElementById('pinLockScreen');
+        if (!lockEl || lockEl.classList.contains('hidden')) return;
+        if (/^[0-9]$/.test(e.key)) {
+          e.preventDefault();
+          enterPinDigit(e.key);
+        } else if (e.key === 'Backspace') {
+          e.preventDefault();
+          backspacePinDigit();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          clearPinInput();
+        }
+      });
+    }
+
     window.onload = function() {
       initTheme();
+      initPinLock();
       orders = normalizeOrderIds(orders);
       writeLocalCache();
       renderAll();
