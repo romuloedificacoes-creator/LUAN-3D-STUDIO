@@ -1689,7 +1689,65 @@
     function closePdfOptionsModal() {
       document.getElementById('pdfOptionsModal').classList.add('hidden');
     }
-// ... existing code ... -->
+
+    function drawBrandLogoOnPDF(doc, cx, cy, r) {
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(31, 41, 51);
+      doc.setLineWidth(0.7);
+      doc.circle(cx, cy, r, 'FD');
+
+      const s = r / 50;
+      const ox = cx - r;
+      const oy = cy - r;
+
+      // Estrutura da impressora 3D
+      doc.setDrawColor(31, 41, 51);
+      doc.setLineWidth(1.1);
+      doc.roundedRect(ox + 22 * s, oy + 20 * s, 56 * s, 54 * s, 2.2, 2.2, 'S');
+      doc.line(ox + 22 * s, oy + 35 * s, ox + 78 * s, oy + 35 * s);
+
+      // Extrusora
+      doc.setFillColor(31, 41, 51);
+      doc.roundedRect(ox + 43 * s, oy + 28 * s, 14 * s, 14 * s, 0.8, 0.8, 'F');
+      doc.triangle(ox + 46 * s, oy + 42 * s, ox + 54 * s, oy + 42 * s, ox + 50 * s, oy + 49 * s, 'F');
+
+      // Filamento laranja (#F97316)
+      doc.setDrawColor(249, 115, 22);
+      doc.setLineWidth(0.95);
+      doc.line(ox + 50 * s, oy + 13 * s, ox + 50 * s, oy + 28 * s);
+      doc.lines([[0, 8 * s], [-13 * s, 11 * s], [22 * s, 2 * s]], ox + 50 * s, oy + 49 * s);
+
+      // Cubo isométrico azul (#2563EB)
+      const p1 = [ox + 68 * s, oy + 54 * s];
+      const p2 = [ox + 83 * s, oy + 62 * s];
+      const p3 = [ox + 83 * s, oy + 79 * s];
+      const p4 = [ox + 68 * s, oy + 87 * s];
+      const p5 = [ox + 53 * s, oy + 79 * s];
+      const p6 = [ox + 53 * s, oy + 62 * s];
+      const pc = [ox + 68 * s, oy + 70 * s];
+
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(37, 99, 235);
+      doc.setLineWidth(0.95);
+
+      doc.triangle(p1[0], p1[1], p2[0], p2[1], p4[0], p4[1], 'F');
+      doc.triangle(p2[0], p2[1], p3[0], p3[1], p4[0], p4[1], 'F');
+      doc.triangle(p1[0], p1[1], p4[0], p4[1], p6[0], p6[1], 'F');
+      doc.triangle(p6[0], p6[1], p4[0], p4[1], p5[0], p5[1], 'F');
+
+      doc.line(p1[0], p1[1], p2[0], p2[1]);
+      doc.line(p2[0], p2[1], p3[0], p3[1]);
+      doc.line(p3[0], p3[1], p4[0], p4[1]);
+      doc.line(p4[0], p4[1], p5[0], p5[1]);
+      doc.line(p5[0], p5[1], p6[0], p6[1]);
+      doc.line(p6[0], p6[1], p1[0], p1[1]);
+
+      doc.setLineWidth(0.75);
+      doc.line(p6[0], p6[1], pc[0], pc[1]);
+      doc.line(p2[0], p2[1], pc[0], pc[1]);
+      doc.line(pc[0], pc[1], p4[0], p4[1]);
+    }
+
     function generateVectorPDF() {
       const reportMode = document.getElementById('pdfReportMode').value;
       const isPrintMode = reportMode === 'IMPRESSAO';
