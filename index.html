@@ -614,6 +614,14 @@
 
       <div class="space-y-3">
         <div>
+          <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Tipo de Relatório</label>
+          <select id="pdfReportMode" onchange="togglePdfModeFields()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-bold text-[#2563EB] dark:text-blue-400">
+            <option value="FINANCEIRO">Relatório Completo (Financeiro & Pedidos)</option>
+            <option value="IMPRESSAO">Fila de Impressão (Na Fila, Imprimindo e Acabamento — Sem Valores)</option>
+          </select>
+        </div>
+
+        <div id="pdfPaymentFilterGroup">
           <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Filtrar por Pagamento</label>
           <select id="pdfPaymentFilter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-medium">
             <option value="ALL">Todos os Pedidos</option>
@@ -631,7 +639,7 @@
 
         <label class="flex items-center gap-2.5 pt-1 cursor-pointer select-none">
           <input id="pdfIncludeSummary" type="checkbox" checked class="w-4 h-4 rounded text-[#2563EB] focus:ring-[#2563EB]" />
-          <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Incluir cartões executivos de resumo financeiro no topo</span>
+          <span id="pdfIncludeSummaryLabel" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Incluir cartões executivos de resumo no topo</span>
         </label>
 
         <label class="flex items-center gap-2.5 cursor-pointer select-none">
@@ -1664,83 +1672,42 @@
     // =========================================================================
     // 9. EXPORTAÇÃO DE RELATÓRIO PDF PROFISSIONAL COM LOGOMARCA VETORIAL
     // =========================================================================
+    function togglePdfModeFields() {
+      const mode = document.getElementById('pdfReportMode').value;
+      const isPrintMode = mode === 'IMPRESSAO';
+      document.getElementById('pdfPaymentFilterGroup').classList.toggle('hidden', isPrintMode);
+      document.getElementById('pdfIncludeSummaryLabel').textContent = isPrintMode
+        ? 'Incluir resumo de quantidade de pedidos e peças no topo'
+        : 'Incluir cartões executivos de resumo financeiro no topo';
+    }
+
     function openPdfOptionsModal() {
+      togglePdfModeFields();
       document.getElementById('pdfOptionsModal').classList.remove('hidden');
     }
 
     function closePdfOptionsModal() {
       document.getElementById('pdfOptionsModal').classList.add('hidden');
     }
-
-    function drawBrandLogoOnPDF(doc, cx, cy, r) {
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(31, 41, 51);
-      doc.setLineWidth(0.7);
-      doc.circle(cx, cy, r, 'FD');
-
-      const s = r / 50;
-      const ox = cx - r;
-      const oy = cy - r;
-
-      // Estrutura da impressora 3D
-      doc.setDrawColor(31, 41, 51);
-      doc.setLineWidth(1.1);
-      doc.roundedRect(ox + 22 * s, oy + 20 * s, 56 * s, 54 * s, 2.2, 2.2, 'S');
-      doc.line(ox + 22 * s, oy + 35 * s, ox + 78 * s, oy + 35 * s);
-
-      // Extrusora
-      doc.setFillColor(31, 41, 51);
-      doc.roundedRect(ox + 43 * s, oy + 28 * s, 14 * s, 14 * s, 0.8, 0.8, 'F');
-      doc.triangle(ox + 46 * s, oy + 42 * s, ox + 54 * s, oy + 42 * s, ox + 50 * s, oy + 49 * s, 'F');
-
-      // Filamento laranja (#F97316)
-      doc.setDrawColor(249, 115, 22);
-      doc.setLineWidth(0.95);
-      doc.line(ox + 50 * s, oy + 13 * s, ox + 50 * s, oy + 28 * s);
-      doc.lines([[0, 8 * s], [-13 * s, 11 * s], [22 * s, 2 * s]], ox + 50 * s, oy + 49 * s);
-
-      // Cubo isométrico azul (#2563EB)
-      const p1 = [ox + 68 * s, oy + 54 * s];
-      const p2 = [ox + 83 * s, oy + 62 * s];
-      const p3 = [ox + 83 * s, oy + 79 * s];
-      const p4 = [ox + 68 * s, oy + 87 * s];
-      const p5 = [ox + 53 * s, oy + 79 * s];
-      const p6 = [ox + 53 * s, oy + 62 * s];
-      const pc = [ox + 68 * s, oy + 70 * s];
-
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(37, 99, 235);
-      doc.setLineWidth(0.95);
-
-      doc.triangle(p1[0], p1[1], p2[0], p2[1], p4[0], p4[1], 'F');
-      doc.triangle(p2[0], p2[1], p3[0], p3[1], p4[0], p4[1], 'F');
-      doc.triangle(p1[0], p1[1], p4[0], p4[1], p6[0], p6[1], 'F');
-      doc.triangle(p6[0], p6[1], p4[0], p4[1], p5[0], p5[1], 'F');
-
-      doc.line(p1[0], p1[1], p2[0], p2[1]);
-      doc.line(p2[0], p2[1], p3[0], p3[1]);
-      doc.line(p3[0], p3[1], p4[0], p4[1]);
-      doc.line(p4[0], p4[1], p5[0], p5[1]);
-      doc.line(p5[0], p5[1], p6[0], p6[1]);
-      doc.line(p6[0], p6[1], p1[0], p1[1]);
-
-      doc.setLineWidth(0.75);
-      doc.line(p6[0], p6[1], pc[0], pc[1]);
-      doc.line(p2[0], p2[1], pc[0], pc[1]);
-      doc.line(pc[0], pc[1], p4[0], p4[1]);
-    }
-
+// ... existing code ... -->
     function generateVectorPDF() {
+      const reportMode = document.getElementById('pdfReportMode').value;
+      const isPrintMode = reportMode === 'IMPRESSAO';
       const payFilter = document.getElementById('pdfPaymentFilter').value;
       const monthFilter = document.getElementById('pdfMonthFilter').value;
       const includeSummary = document.getElementById('pdfIncludeSummary').checked;
       const includeTasks = document.getElementById('pdfIncludeTasks').checked;
       closePdfOptionsModal();
 
+      const PRINT_QUEUE_STATUSES = ['Na Fila', 'Imprimindo', 'Acabamento'];
+
       const filteredOrders = orders
         .filter(o => {
-          const matchPay = payFilter === 'ALL' || o.payment === payFilter;
           const matchMonth = !monthFilter || (o.orderDate && o.orderDate.startsWith(monthFilter));
+          if (isPrintMode) {
+            return PRINT_QUEUE_STATUSES.includes(o.status) && matchMonth;
+          }
+          const matchPay = payFilter === 'ALL' || o.payment === payFilter;
           return matchPay && matchMonth;
         })
         .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
@@ -1789,12 +1756,21 @@
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9.5);
       doc.setTextColor(203, 213, 225);
-      doc.text('Relatório Executivo de Produção & Pedidos 3D', 39, 23);
+      doc.text(
+        isPrintMode
+          ? 'Ordem de Produção & Fila de Impressão 3D'
+          : 'Relatório Executivo de Produção & Pedidos 3D',
+        39,
+        23
+      );
 
       const now = new Date();
       const dateStr = now.toLocaleDateString('pt-BR');
       const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      const filterDesc = `${payFilter === 'ALL' ? 'Todos' : payFilter}${monthFilter ? ` • Mês ${monthFilter}` : ''}`;
+      const baseFilterLabel = isPrintMode
+        ? 'Fila de Impressão'
+        : (payFilter === 'ALL' ? 'Todos' : payFilter);
+      const filterDesc = `${baseFilterLabel}${monthFilter ? ` • Mês ${monthFilter}` : ''}`;
 
       doc.setFontSize(8.5);
       doc.setTextColor(148, 163, 184);
@@ -1809,56 +1785,107 @@
         const cardY = 44;
         const cardH = 22;
         const gap = 5;
-        const cardW = (pageWidth - 28 - (gap * 2)) / 3;
 
-        // Card 1: Faturamento Bruto
-        doc.setFillColor(239, 246, 255);
-        doc.setDrawColor(191, 219, 254);
-        doc.setLineWidth(0.3);
-        doc.roundedRect(14, cardY, cardW, cardH, 2.5, 2.5, 'FD');
-        doc.setFillColor(37, 99, 235);
-        doc.rect(14, cardY, 2, cardH, 'F');
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(7.5);
-        doc.setTextColor(71, 85, 105);
-        doc.text('FATURAMENTO BRUTO', 19, cardY + 7.5);
-        doc.setFontSize(13);
-        doc.setTextColor(37, 99, 235);
-        doc.text(formatCurrency(grossTotal), 19, cardY + 16.5);
+        if (isPrintMode) {
+          // Modo Impressão: 2 cartões apenas com Quantidade de Pedidos e Quantidade de Itens/Peças (Sem Valores)
+          const cardW = (pageWidth - 28 - gap) / 2;
 
-        // Card 2: Saldo a Receber
-        const card2X = 14 + cardW + gap;
-        doc.setFillColor(255, 247, 237);
-        doc.setDrawColor(254, 215, 170);
-        doc.roundedRect(card2X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
-        doc.setFillColor(249, 115, 22);
-        doc.rect(card2X, cardY, 2, cardH, 'F');
-        doc.setFontSize(7.5);
-        doc.setTextColor(71, 85, 105);
-        doc.text('SALDO A RECEBER', card2X + 5, cardY + 7.5);
-        doc.setFontSize(13);
-        doc.setTextColor(234, 88, 12);
-        doc.text(formatCurrency(pendingTotal), card2X + 5, cardY + 16.5);
+          // Card 1: Total de Pedidos
+          doc.setFillColor(239, 246, 255);
+          doc.setDrawColor(191, 219, 254);
+          doc.setLineWidth(0.3);
+          doc.roundedRect(14, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+          doc.setFillColor(37, 99, 235);
+          doc.rect(14, cardY, 2, cardH, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(7.5);
+          doc.setTextColor(71, 85, 105);
+          doc.text('QUANTIDADE DE PEDIDOS NA FILA', 19, cardY + 7.5);
+          doc.setFontSize(14);
+          doc.setTextColor(37, 99, 235);
+          doc.text(`${filteredOrders.length} pedido(s)`, 19, cardY + 16.5);
 
-        // Card 3: Volume de Pedidos/Peças
-        const card3X = card2X + cardW + gap;
-        doc.setFillColor(248, 250, 252);
-        doc.setDrawColor(226, 232, 240);
-        doc.roundedRect(card3X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
-        doc.setFillColor(31, 41, 51);
-        doc.rect(card3X, cardY, 2, cardH, 'F');
-        doc.setFontSize(7.5);
-        doc.setTextColor(71, 85, 105);
-        doc.text('VOLUME DE PRODUÇÃO', card3X + 5, cardY + 7.5);
-        doc.setFontSize(12);
-        doc.setTextColor(31, 41, 51);
-        doc.text(`${filteredOrders.length} pedido(s) • ${totalPieces} peça(s)`, card3X + 5, cardY + 16.5);
+          // Card 2: Total de Peças / Itens
+          const card2X = 14 + cardW + gap;
+          doc.setFillColor(255, 247, 237);
+          doc.setDrawColor(254, 215, 170);
+          doc.roundedRect(card2X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+          doc.setFillColor(249, 115, 22);
+          doc.rect(card2X, cardY, 2, cardH, 'F');
+          doc.setFontSize(7.5);
+          doc.setTextColor(71, 85, 105);
+          doc.text('QUANTIDADE TOTAL DE ITENS / PEÇAS', card2X + 5, cardY + 7.5);
+          doc.setFontSize(14);
+          doc.setTextColor(234, 88, 12);
+          doc.text(`${totalPieces} unidade(s)`, card2X + 5, cardY + 16.5);
+        } else {
+          // Modo Financeiro Completo: 3 cartões
+          const cardW = (pageWidth - 28 - (gap * 2)) / 3;
+
+          // Card 1: Faturamento Bruto
+          doc.setFillColor(239, 246, 255);
+          doc.setDrawColor(191, 219, 254);
+          doc.setLineWidth(0.3);
+          doc.roundedRect(14, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+          doc.setFillColor(37, 99, 235);
+          doc.rect(14, cardY, 2, cardH, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(7.5);
+          doc.setTextColor(71, 85, 105);
+          doc.text('FATURAMENTO BRUTO', 19, cardY + 7.5);
+          doc.setFontSize(13);
+          doc.setTextColor(37, 99, 235);
+          doc.text(formatCurrency(grossTotal), 19, cardY + 16.5);
+
+          // Card 2: Saldo a Receber
+          const card2X = 14 + cardW + gap;
+          doc.setFillColor(255, 247, 237);
+          doc.setDrawColor(254, 215, 170);
+          doc.roundedRect(card2X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+          doc.setFillColor(249, 115, 22);
+          doc.rect(card2X, cardY, 2, cardH, 'F');
+          doc.setFontSize(7.5);
+          doc.setTextColor(71, 85, 105);
+          doc.text('SALDO A RECEBER', card2X + 5, cardY + 7.5);
+          doc.setFontSize(13);
+          doc.setTextColor(234, 88, 12);
+          doc.text(formatCurrency(pendingTotal), card2X + 5, cardY + 16.5);
+
+          // Card 3: Volume de Pedidos/Peças
+          const card3X = card2X + cardW + gap;
+          doc.setFillColor(248, 250, 252);
+          doc.setDrawColor(226, 232, 240);
+          doc.roundedRect(card3X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
+          doc.setFillColor(31, 41, 51);
+          doc.rect(card3X, cardY, 2, cardH, 'F');
+          doc.setFontSize(7.5);
+          doc.setTextColor(71, 85, 105);
+          doc.text('VOLUME DE PRODUÇÃO', card3X + 5, cardY + 7.5);
+          doc.setFontSize(12);
+          doc.setTextColor(31, 41, 51);
+          doc.text(`${filteredOrders.length} pedido(s) • ${totalPieces} peça(s)`, card3X + 5, cardY + 16.5);
+        }
 
         tableStartY = 73;
       }
 
+      const tableHead = isPrintMode
+        ? [['Nº', 'Item / Descrição', 'Material', 'Qtd.', 'Cliente', 'Prazo Entrega', 'Status Produção']]
+        : [['Nº', 'Item / Material', 'Cliente', 'Datas', 'Status / Entrega', 'Detalhamento', 'Total']];
+
       const rows = filteredOrders.map(o => {
         const qty = Number(o.qty) || 1;
+        if (isPrintMode) {
+          return [
+            o.id,
+            o.item,
+            o.material,
+            `${qty} un.`,
+            o.client + (o.phone ? `\n${o.phone}` : ''),
+            `Ped: ${formatDateBR(o.orderDate)}\nEnt: ${formatDateBR(o.deliveryDate)}`,
+            o.status
+          ];
+        }
         const unit = Number(o.unitPrice) || 0;
         const cost = Number(o.cost) || 0;
         const unitDesc = `${qty}x ${formatCurrency(unit)}${cost > 0 ? `\n(+${formatCurrency(cost)} outros)` : ''}`;
@@ -1874,9 +1901,29 @@
         ];
       });
 
+      const tableColumnStyles = isPrintMode
+        ? {
+            0: { fontStyle: 'bold', textColor: [37, 99, 235], cellWidth: 12, halign: 'center' },
+            1: { cellWidth: 56, fontStyle: 'bold' },
+            2: { cellWidth: 20, halign: 'center' },
+            3: { cellWidth: 16, halign: 'center', fontStyle: 'bold', textColor: [234, 88, 12] },
+            4: { cellWidth: 34 },
+            5: { cellWidth: 28 },
+            6: { cellWidth: 26, halign: 'center', fontStyle: 'bold' }
+          }
+        : {
+            0: { fontStyle: 'bold', textColor: [37, 99, 235], cellWidth: 12, halign: 'center' },
+            1: { cellWidth: 46 },
+            2: { cellWidth: 32 },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 32, fontStyle: 'bold' },
+            5: { cellWidth: 24, halign: 'right' },
+            6: { cellWidth: 21, halign: 'right', fontStyle: 'bold', textColor: [15, 23, 42] }
+          };
+
       doc.autoTable({
         startY: tableStartY,
-        head: [['Nº', 'Item / Material', 'Cliente', 'Datas', 'Status / Entrega', 'Detalhamento', 'Total']],
+        head: tableHead,
         body: rows,
         theme: 'grid',
         headStyles: {
@@ -1895,24 +1942,27 @@
         alternateRowStyles: {
           fillColor: [248, 250, 252]
         },
-        columnStyles: {
-          0: { fontStyle: 'bold', textColor: [37, 99, 235], cellWidth: 12, halign: 'center' },
-          1: { cellWidth: 46 },
-          2: { cellWidth: 32 },
-          3: { cellWidth: 25 },
-          4: { cellWidth: 32, fontStyle: 'bold' },
-          5: { cellWidth: 24, halign: 'right' },
-          6: { cellWidth: 21, halign: 'right', fontStyle: 'bold', textColor: [15, 23, 42] }
-        },
+        columnStyles: tableColumnStyles,
         didParseCell: function(data) {
-          if (data.section === 'body' && data.column.index === 4) {
-            const text = String(data.cell.raw || '');
-            if (text.includes('[Pago]')) {
-              data.cell.styles.textColor = [5, 150, 105];
-            } else if (text.includes('[50% Sinal]')) {
-              data.cell.styles.textColor = [234, 88, 12];
-            } else {
-              data.cell.styles.textColor = [225, 29, 72];
+          if (data.section === 'body') {
+            if (isPrintMode && data.column.index === 6) {
+              const statusVal = String(data.cell.raw || '');
+              if (statusVal === 'Imprimindo') {
+                data.cell.styles.textColor = [37, 99, 235];
+              } else if (statusVal === 'Acabamento') {
+                data.cell.styles.textColor = [234, 88, 12];
+              } else {
+                data.cell.styles.textColor = [71, 85, 105];
+              }
+            } else if (!isPrintMode && data.column.index === 4) {
+              const text = String(data.cell.raw || '');
+              if (text.includes('[Pago]')) {
+                data.cell.styles.textColor = [5, 150, 105];
+              } else if (text.includes('[50% Sinal]')) {
+                data.cell.styles.textColor = [234, 88, 12];
+              } else {
+                data.cell.styles.textColor = [225, 29, 72];
+              }
             }
           }
         },
@@ -2011,9 +2061,9 @@
           }
         });
       }
-
-      doc.save(`relatorio_luan_3d_studio_${now.toISOString().split('T')[0]}.pdf`);
-      showToast('Relatório PDF gerado com sucesso!');
+      const filePrefix = isPrintMode ? 'fila_impressao_luan_3d_studio' : 'relatorio_luan_3d_studio';
+      doc.save(`${filePrefix}_${now.toISOString().split('T')[0]}.pdf`);
+      showToast(isPrintMode ? 'Folha de Fila de Impressão gerada!' : 'Relatório PDF gerado com sucesso!');
     }
 
     // =========================================================================
