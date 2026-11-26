@@ -777,29 +777,80 @@
       }
     }
 
+    function unlockPinScreen() {
+      try {
+        sessionStorage.setItem(PIN_SESSION_KEY, 'true');
+      } catch (e) {}
+      const lockEl = document.getElementById('pinLockScreen');
+      if (lockEl) lockEl.classList.add('hidden');
+      currentPinBuffer = '';
+      updatePinDots();
+    }
+
     function enterPinDigit(digit) {
       if (currentPinBuffer.length >= 4) return;
-      document.getElementById('pinErrorMsg').textContent = '';
-      currentPinBuffer += digit;
+      const errEl = document.getElementById('pinErrorMsg');
+      if (errEl) errEl.textContent = '';
+      currentPinBuffer += String(digit);
       updatePinDots();
 
       if (currentPinBuffer.length === 4) {
         if (currentPinBuffer === STUDIO_PIN) {
-          sessionStorage.setItem(PIN_SESSION_KEY, 'true');
-          document.getElementById('pinLockScreen').classList.add('hidden');
-          currentPinBuffer = '';
-          updatePinDots();
+          unlockPinScreen();
         } else {
           const dotsBox = document.getElementById('pinDotsContainer');
-          dotsBox.classList.remove('animate-pin-shake');
-          void dotsBox.offsetWidth;
-          dotsBox.classList.add('animate-pin-shake');
-          document.getElementById('pinErrorMsg').textContent = 'PIN incorreto. Tente novamente.';
+          if (dotsBox) {
+            dotsBox.classList.remove('animate-pin-shake');
+            void dotsBox.offsetWidth;
+            dotsBox.classList.add('animate-pin-shake');
+          }
+          if (errEl) errEl.textContent = 'PIN incorreto. Tente novamente.';
           setTimeout(() => {
             currentPinBuffer = '';
             updatePinDots();
           }, 350);
         }
+      }
+    }
+
+    function backspacePinDigit() {
+      if (currentPinBuffer.length === 0) return;
+      currentPinBuffer = currentPinBuffer.slice(0, -1);
+      const errEl = document.getElementById('pinErrorMsg');
+      if (errEl) errEl.textContent = '';
+      updatePinDots();
+    }
+
+    function clearPinInput() {
+      currentPinBuffer = '';
+      const errEl = document.getElementById('pinErrorMsg');
+      if (errEl) errEl.textContent = '';
+      updatePinDots();
+    }
+
+    function lockApp() {
+      try {
+        sessionStorage.removeItem(PIN_SESSION_KEY);
+      } catch (e) {}
+      currentPinBuffer = '';
+      const errEl = document.getElementById('pinErrorMsg');
+      if (errEl) errEl.textContent = '';
+      updatePinDots();
+      const lockEl = document.getElementById('pinLockScreen');
+      if (lockEl) lockEl.classList.remove('hidden');
+    }
+
+    function checkInitialPinLock() {
+      let isUnlocked = false;
+      try {
+        isUnlocked = sessionStorage.getItem(PIN_SESSION_KEY) === 'true';
+      } catch (e) {}
+      const lockEl = document.getElementById('pinLockScreen');
+      if (!lockEl) return;
+      if (isUnlocked) {
+        lockEl.classList.add('hidden');
+      } else {
+        lockEl.classList.remove('hidden');
       }
     }
 
@@ -851,12 +902,12 @@
     // 1. CONFIGURAÇÃO FIREBASE FIRESTORE (TEMPO REAL)
     // =========================================================================
     const firebaseConfig = {
-      apiKey: "AIzaSyD3BlVz3O8y6AF6IQkdG1nKNAZZ-O4jcMw",
-  authDomain: "minha-agenda-d822c.firebaseapp.com",
-  projectId: "minha-agenda-d822c",
-  storageBucket: "minha-agenda-d822c.firebasestorage.app",
-  messagingSenderId: "424693571025",
-  appId: "1:424693571025:web:2f068af3f077f36e5a54f0"
+      apiKey: "AIzaSyCeNClXLIoRFyFCo5QoC-tL5WzH7o-ouKo",
+      authDomain: "luan-3d-studio.firebaseapp.com",
+      projectId: "luan-3d-studio",
+      storageBucket: "luan-3d-studio.firebasestorage.app",
+      messagingSenderId: "533886328535",
+      appId: "1:533886328535:web:860244e9e211f51e1b1a92"
     };
 
     let db = null;
@@ -2428,3 +2479,18 @@
       };
       reader.readAsText(file);
     }
+
+    // =========================================================================
+    // 12. INICIALIZAÇÃO
+    // =========================================================================
+    window.onload = function() {
+      checkInitialPinLock();
+      initTheme();
+      orders = normalizeOrderIds(orders);
+      writeLocalCache();
+      renderAll();
+      initRealtimeSync();
+    };
+  </script>
+</body>
+</html>
