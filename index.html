@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -55,7 +54,6 @@
   <!-- Tela de Bloqueio por PIN (6524) -->
   <div id="pinLockScreen" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xs w-full p-7 shadow-2xl text-center space-y-6">
-      <!-- Logomarca -->
       <div class="flex flex-col items-center gap-2.5">
         <div class="w-16 h-16 rounded-full border-2 border-[#1F2933] dark:border-slate-300 bg-white flex items-center justify-center shadow-md">
           <svg viewBox="0 0 100 100" class="w-12 h-12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -80,7 +78,6 @@
         </div>
       </div>
 
-      <!-- Bolinhas indicadoras do PIN -->
       <div class="space-y-2">
         <div id="pinDotsContainer" class="flex items-center justify-center gap-4 py-2">
           <span id="pinDot0" class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 transition-all duration-150"></span>
@@ -91,7 +88,6 @@
         <p id="pinErrorMsg" class="text-xs font-bold text-rose-500 h-4"></p>
       </div>
 
-      <!-- Teclado Numérico Tátil -->
       <div class="grid grid-cols-3 gap-2.5 select-none">
         <button type="button" onclick="enterPinDigit('1')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">1</button>
         <button type="button" onclick="enterPinDigit('2')" class="h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-lg font-extrabold text-slate-800 dark:text-white transition">2</button>
@@ -114,7 +110,6 @@
   <!-- Cabeçalho -->
   <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
-      <!-- Logomarca Oficial Luan 3D Studio -->
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-12 h-12 rounded-full border-2 border-[#1F2933] dark:border-slate-300 bg-white flex items-center justify-center shadow-sm shrink-0">
           <svg viewBox="0 0 100 100" class="w-9 h-9" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -135,7 +130,6 @@
             <span class="text-[#1F2933] dark:text-white">LUAN</span>
             <span class="text-[#2563EB] dark:text-blue-400"> 3D STUDIO</span>
           </h1>
-          <!-- Indicador de Status da Nuvem -->
           <div id="cloudStatusBadge" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 mt-1.5 transition-all">
             <i class="fa-solid fa-cloud-arrow-up animate-pulse"></i>
             <span id="cloudStatusText">Conectando à nuvem...</span>
@@ -143,7 +137,6 @@
         </div>
       </div>
 
-      <!-- Ações do Cabeçalho -->
       <div class="flex items-center gap-2 shrink-0">
         <button onclick="lockApp()" title="Bloquear Tela (PIN)" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-700 dark:text-slate-200">
           <i class="fa-solid fa-lock"></i>
@@ -169,7 +162,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- Painel de Resumo Financeiro (Ordem Exata) -->
+    <!-- Painel de Resumo Financeiro -->
     <section>
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -179,7 +172,6 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- 1) Faturamento Bruto -->
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Faturamento Bruto</span>
@@ -191,7 +183,6 @@
           <p class="text-xs text-slate-400 mt-1">(Unitário × qtd.) + outros custos</p>
         </div>
 
-        <!-- 2) A Receber -->
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">A Receber</span>
@@ -203,7 +194,6 @@
           <p id="kpiReceivableCount" class="text-xs text-slate-400 mt-1">0 pedido(s) com saldo aberto</p>
         </div>
 
-        <!-- 3) Custos (Materiais) -->
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Custos (Materiais)</span>
@@ -215,7 +205,6 @@
           <p id="kpiCostsBreakdown" class="text-xs text-slate-400 mt-1">Exclusivo de materiais</p>
         </div>
 
-        <!-- 4) Lucro Líquido (Pagos) -->
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Lucro Líquido (Pagos)</span>
@@ -228,6 +217,76 @@
             <span id="kpiMargin" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">0%</span>
           </div>
           <p id="kpiPaidBaseText" class="text-xs text-slate-400 mt-1">Pedidos pagos menos materiais</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENDA DE ENTREGAS (SEMANA & MÊS INTERATIVOS) -->
+    <section class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-[#F97316] flex items-center justify-center">
+            <i class="fa-solid fa-calendar-day"></i>
+          </div>
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Agenda de Entregas</h2>
+            <p id="calendarPeriodLabel" class="text-xs text-slate-500 dark:text-slate-400 font-semibold capitalize mt-0.5">Semana Atual</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Filtro Ativo por Data -->
+          <div id="selectedDatePill" class="hidden items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-800 text-xs font-bold text-[#2563EB] dark:text-blue-300">
+            <i class="fa-solid fa-filter"></i>
+            <span id="selectedDatePillText">Filtrando data</span>
+            <button type="button" onclick="clearSelectedDeliveryDate()" title="Limpar filtro de data" class="ml-1 hover:text-rose-500 transition">✕</button>
+          </div>
+
+          <!-- Alternador Semana / Mês -->
+          <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700">
+            <button type="button" id="calViewWeekBtn" onclick="setCalendarViewMode('week')" class="px-3 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-[#2563EB] dark:text-blue-400 shadow-sm transition">
+              Semana
+            </button>
+            <button type="button" id="calViewMonthBtn" onclick="setCalendarViewMode('month')" class="px-3 py-1 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">
+              Mês
+            </button>
+          </div>
+
+          <!-- Navegação Anterior / Hoje / Próximo -->
+          <div class="inline-flex items-center gap-1">
+            <button type="button" onclick="navigateCalendar(-1)" title="Período Anterior" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-slate-600 dark:text-slate-300 transition">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button type="button" onclick="goToTodayCalendar()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 transition">
+              Hoje
+            </button>
+            <button type="button" onclick="navigateCalendar(1)" title="Próximo Período" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs text-slate-600 dark:text-slate-300 transition">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grade do Calendário (7 colunas) -->
+      <div>
+        <div class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">
+          <div>Dom</div>
+          <div>Seg</div>
+          <div>Ter</div>
+          <div>Qua</div>
+          <div>Qui</div>
+          <div>Sex</div>
+          <div>Sáb</div>
+        </div>
+        <div id="deliveryCalendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2"></div>
+      </div>
+
+      <!-- Legenda Rápida -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
+        <span>Clique em qualquer data para filtrar as entregas daquele dia na lista de pedidos.</span>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#F97316]"></span> Entrega pendente</span>
+          <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Tudo concluído</span>
         </div>
       </div>
     </section>
@@ -278,10 +337,13 @@
       </div>
 
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-clipboard-list text-[#2563EB]"></i> Fila de Pedidos 3D
-          </h3>
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-list text-[#2563EB]"></i> Fila de Pedidos 3D
+            </h3>
+            <span id="ordersTableFilterNotice" class="hidden text-xs font-bold px-2.5 py-0.5 rounded-full bg-orange-100 text-[#F97316] dark:bg-orange-950/70 dark:text-orange-300"></span>
+          </div>
           <span id="tableOrdersCountLabel" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">0 pedido(s)</span>
         </div>
 
@@ -449,7 +511,6 @@
           </div>
         </div>
 
-        <!-- Valores do Produto -->
         <div class="p-4 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
@@ -890,7 +951,7 @@
       }
     ];
 
-    function loadLocalArray(key, fallback) {
+    function loadLocalArray(key) {
       try {
         const raw = localStorage.getItem(key);
         if (!raw) return null;
@@ -910,7 +971,11 @@
 
     let pendingDeleteAction = null;
 
-    // Normaliza IDs antigos e migra status legados ("Entregue" -> Produção: "Concluído" + Entrega: "Entregue")
+    // Estado da Agenda de Entregas (Semana / Mês)
+    let calendarViewMode = 'week'; // 'week' | 'month'
+    let calendarCursorDate = new Date();
+    let selectedDeliveryDateFilter = null; // 'YYYY-MM-DD' ou null
+
     function normalizeOrderIds(list) {
       if (!Array.isArray(list)) return [];
       const hasLegacyIds = list.some(o => String(o.id).startsWith('ORD-'));
@@ -1046,6 +1111,13 @@
       return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoDate;
     }
 
+    function toLocalISO(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
     function showToast(msg) {
       const el = document.getElementById('toast');
       el.textContent = msg;
@@ -1111,7 +1183,177 @@
     }
 
     // =========================================================================
-    // 5. REGRAS FINANCEIRAS E DASHBOARD
+    // 5. AGENDA DE ENTREGAS (SEMANA & MÊS INTERATIVOS)
+    // =========================================================================
+    function setCalendarViewMode(mode) {
+      calendarViewMode = mode;
+      const weekBtn = document.getElementById('calViewWeekBtn');
+      const monthBtn = document.getElementById('calViewMonthBtn');
+      const activeCls = 'px-3 py-1 rounded-lg text-xs font-bold bg-white dark:bg-slate-900 text-[#2563EB] dark:text-blue-400 shadow-sm transition';
+      const inactiveCls = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition';
+
+      weekBtn.className = mode === 'week' ? activeCls : inactiveCls;
+      monthBtn.className = mode === 'month' ? activeCls : inactiveCls;
+      renderDeliveryCalendar();
+    }
+
+    function navigateCalendar(delta) {
+      const d = new Date(calendarCursorDate);
+      if (calendarViewMode === 'week') {
+        d.setDate(d.getDate() + (delta * 7));
+      } else {
+        d.setMonth(d.getMonth() + delta);
+      }
+      calendarCursorDate = d;
+      renderDeliveryCalendar();
+    }
+
+    function goToTodayCalendar() {
+      calendarCursorDate = new Date();
+      renderDeliveryCalendar();
+    }
+
+    function toggleSelectDeliveryDate(isoDate) {
+      if (selectedDeliveryDateFilter === isoDate) {
+        selectedDeliveryDateFilter = null;
+      } else {
+        selectedDeliveryDateFilter = isoDate;
+        switchTab('orders');
+      }
+      renderDeliveryCalendar();
+      renderOrders();
+    }
+
+    function clearSelectedDeliveryDate() {
+      selectedDeliveryDateFilter = null;
+      renderDeliveryCalendar();
+      renderOrders();
+    }
+
+    function renderDeliveryCalendar() {
+      const grid = document.getElementById('deliveryCalendarGrid');
+      const label = document.getElementById('calendarPeriodLabel');
+      const pill = document.getElementById('selectedDatePill');
+      const pillText = document.getElementById('selectedDatePillText');
+      if (!grid || !label) return;
+
+      // Atualiza selo de filtro ativo
+      if (selectedDeliveryDateFilter) {
+        pill.classList.remove('hidden');
+        pill.classList.add('inline-flex');
+        pillText.textContent = `Entregas de ${formatDateBR(selectedDeliveryDateFilter)}`;
+      } else {
+        pill.classList.add('hidden');
+        pill.classList.remove('inline-flex');
+      }
+
+      // Agrupa pedidos por data de entrega
+      const ordersByDate = {};
+      orders.forEach(o => {
+        if (!o.deliveryDate) return;
+        if (!ordersByDate[o.deliveryDate]) ordersByDate[o.deliveryDate] = [];
+        ordersByDate[o.deliveryDate].push(o);
+      });
+
+      const todayISO = toLocalISO(new Date());
+      const cursor = new Date(calendarCursorDate.getFullYear(), calendarCursorDate.getMonth(), calendarCursorDate.getDate());
+      let daysToRender = [];
+
+      if (calendarViewMode === 'week') {
+        const startOfWeek = new Date(cursor);
+        startOfWeek.setDate(cursor.getDate() - cursor.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+        const startStr = startOfWeek.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+        const endStr = endOfWeek.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+        label.textContent = `Semana: ${startStr} – ${endStr}`;
+
+        for (let i = 0; i < 7; i++) {
+          const day = new Date(startOfWeek);
+          day.setDate(startOfWeek.getDate() + i);
+          daysToRender.push({ date: day, inCurrentMonth: true });
+        }
+      } else {
+        const year = cursor.getFullYear();
+        const month = cursor.getMonth();
+        label.textContent = cursor.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+        const firstDayOfMonth = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+        const startOffset = firstDayOfMonth.getDay();
+
+        for (let i = startOffset; i > 0; i--) {
+          const d = new Date(year, month, 1 - i);
+          daysToRender.push({ date: d, inCurrentMonth: false });
+        }
+        for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
+          daysToRender.push({ date: new Date(year, month, d), inCurrentMonth: true });
+        }
+        while (daysToRender.length % 7 !== 0) {
+          const nextIdx = daysToRender.length - (startOffset + lastDayOfMonth.getDate()) + 1;
+          daysToRender.push({ date: new Date(year, month + 1, nextIdx), inCurrentMonth: false });
+        }
+      }
+
+      grid.innerHTML = daysToRender.map(({ date, inCurrentMonth }) => {
+        const iso = toLocalISO(date);
+        const dayOrders = ordersByDate[iso] || [];
+        const hasOrders = dayOrders.length > 0;
+        const isToday = iso === todayISO;
+        const isSelected = selectedDeliveryDateFilter === iso;
+        const allConcluded = hasOrders && dayOrders.every(o => o.status === 'Concluído');
+
+        let cellBase = 'group relative flex flex-col justify-between p-2 sm:p-2.5 rounded-xl border text-left transition cursor-pointer ';
+        cellBase += calendarViewMode === 'week' ? 'min-h-[82px] ' : 'min-h-[64px] ';
+
+        if (isSelected) {
+          cellBase += 'bg-blue-50 dark:bg-blue-950/60 border-[#2563EB] ring-2 ring-[#2563EB]/30 ';
+        } else if (hasOrders && allConcluded) {
+          cellBase += 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 hover:border-emerald-500 ';
+        } else if (hasOrders) {
+          cellBase += 'bg-orange-50/70 dark:bg-orange-950/30 border-orange-300 dark:border-orange-800 hover:border-[#F97316] ';
+        } else if (inCurrentMonth) {
+          cellBase += 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 ';
+        } else {
+          cellBase += 'bg-slate-50/30 dark:bg-slate-900/30 border-slate-100 dark:border-slate-800/50 opacity-45 hover:opacity-75 ';
+        }
+
+        const dayNumBadge = isToday
+          ? 'w-6 h-6 rounded-full bg-[#2563EB] text-white inline-flex items-center justify-center text-xs font-extrabold'
+          : 'text-xs font-extrabold text-slate-700 dark:text-slate-200';
+
+        let indicatorHtml = '';
+        if (hasOrders) {
+          const pillStyle = allConcluded
+            ? 'bg-emerald-600 text-white'
+            : 'bg-[#F97316] text-white';
+          const previewClients = dayOrders.slice(0, 2).map(o => `#${o.id} ${o.client.split(' ')[0]}`).join(', ');
+          indicatorHtml = `
+            <div class="mt-1.5 space-y-1">
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold ${pillStyle}">
+                <i class="fa-solid ${allConcluded ? 'fa-check' : 'fa-truck-fast'} text-[9px]"></i>
+                ${dayOrders.length} entrega${dayOrders.length > 1 ? 's' : ''}
+              </span>
+              ${calendarViewMode === 'week' ? `<p class="text-[10px] font-semibold text-slate-600 dark:text-slate-300 truncate">${previewClients}</p>` : ''}
+            </div>
+          `;
+        }
+
+        return `
+          <button type="button" onclick="toggleSelectDeliveryDate('${iso}')" class="${cellBase}">
+            <div class="flex items-center justify-between w-full">
+              <span class="${dayNumBadge}">${String(date.getDate()).padStart(2, '0')}</span>
+              ${hasOrders ? `<span class="w-2 h-2 rounded-full ${allConcluded ? 'bg-emerald-500' : 'bg-[#F97316]'}"></span>` : ''}
+            </div>
+            ${indicatorHtml}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 6. REGRAS FINANCEIRAS E DASHBOARD
     // =========================================================================
     function updateKPIs() {
       let grossRevenue = 0;
@@ -1168,13 +1410,21 @@
     }
 
     // =========================================================================
-    // 6. CRUD DE PEDIDOS (01, 02, 03... + PRODUÇÃO & ENTREGA SEPARADOS)
+    // 7. CRUD DE PEDIDOS (TARJA VERDE + SWOOSH NIKE QUANDO CONCLUÍDO + PGTO VERMELHO SE PENDENTE)
     // =========================================================================
     function renderOrders() {
       const search = document.getElementById('searchOrders').value.toLowerCase();
       const statusFilter = document.getElementById('filterStatus').value;
       const deliveryFilter = document.getElementById('filterDelivery').value;
       const payFilter = document.getElementById('filterPayment').value;
+
+      const filterNotice = document.getElementById('ordersTableFilterNotice');
+      if (selectedDeliveryDateFilter) {
+        filterNotice.textContent = `Entrega: ${formatDateBR(selectedDeliveryDateFilter)}`;
+        filterNotice.classList.remove('hidden');
+      } else {
+        filterNotice.classList.add('hidden');
+      }
 
       const filtered = orders
         .filter(o => {
@@ -1187,7 +1437,8 @@
           const matchStatus = statusFilter === 'ALL' || o.status === statusFilter;
           const matchDelivery = deliveryFilter === 'ALL' || delivVal === deliveryFilter;
           const matchPay = payFilter === 'ALL' || o.payment === payFilter;
-          return matchSearch && matchStatus && matchDelivery && matchPay;
+          const matchDate = !selectedDeliveryDateFilter || o.deliveryDate === selectedDeliveryDateFilter;
+          return matchSearch && matchStatus && matchDelivery && matchPay && matchDate;
         })
         .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
 
@@ -1196,9 +1447,16 @@
 
       const tbody = document.getElementById('ordersTableBody');
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-slate-400">Nenhum pedido encontrado.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-slate-400">Nenhum pedido encontrado${selectedDeliveryDateFilter ? ` para entrega em ${formatDateBR(selectedDeliveryDateFilter)}` : ''}.</td></tr>`;
         return;
       }
+
+      // Ícone SVG estilizado estilo Swoosh (Nike) destacado para pedidos concluídos
+      const nikeSwooshSvg = `
+        <svg viewBox="0 0 24 12" class="w-5 h-3 inline-block shrink-0" fill="currentColor" aria-hidden="true">
+          <path d="M23.6 0.4C17.1 3.2 9.4 6.2 5.4 6.2C3.5 6.2 2.4 5.3 2.7 3.5C2.9 2.4 3.5 1.2 4.3 0.2C2.3 1.5 0.6 3.6 0.2 5.8C-0.3 8.5 1.3 10.6 4.4 10.6C7.6 10.6 13.5 8.1 23.6 0.4Z"/>
+        </svg>
+      `;
 
       tbody.innerHTML = filtered.map(o => {
         const qty = Number(o.qty) || 1;
@@ -1209,15 +1467,19 @@
         const isConcluded = o.status === 'Concluído';
         const isDelivered = isConcluded && o.deliveryStatus === 'Entregue';
 
+        // Quando concluído: tarja da linha inteira verde com borda lateral verde destacada
+        const rowClass = isConcluded
+          ? 'bg-emerald-50/90 dark:bg-emerald-950/45 border-l-4 border-l-emerald-500 hover:bg-emerald-100/80 dark:hover:bg-emerald-950/65 transition'
+          : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition';
+
+        // Pagamento: se não foi realizado (Pendente ou 50% Sinal), permanece destacado em vermelho
         const payBadge = isPaid
-          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-          : o.payment === '50% Sinal'
-          ? 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300'
-          : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300';
+          ? 'bg-emerald-600 text-white shadow-sm'
+          : 'bg-rose-600 text-white shadow-sm ring-1 ring-rose-400/50';
 
         const statusBadge =
           isConcluded
-            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
+            ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm'
             : o.status === 'Imprimindo'
             ? 'bg-blue-50 text-[#2563EB] border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
             : o.status === 'Acabamento'
@@ -1229,54 +1491,60 @@
                <i class="fa-solid fa-lock text-[10px]"></i> Não Entregue
              </button>`
           : isDelivered
-          ? `<button type="button" onclick="toggleDeliveryStatus('${o.id}')" title="Clique para marcar como Não Entregue" class="text-xs font-bold px-3 py-1 rounded-full border bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800 hover:opacity-80 transition inline-flex items-center gap-1.5">
+          ? `<button type="button" onclick="toggleDeliveryStatus('${o.id}')" title="Clique para marcar como Não Entregue" class="text-xs font-bold px-3 py-1 rounded-full border bg-emerald-600 text-white border-emerald-700 hover:opacity-85 transition inline-flex items-center gap-1.5 shadow-sm">
                <i class="fa-solid fa-truck-fast text-[10px]"></i> Entregue
              </button>`
-          : `<button type="button" onclick="toggleDeliveryStatus('${o.id}')" title="Clique para marcar como Entregue" class="text-xs font-bold px-3 py-1 rounded-full border bg-orange-50 text-[#F97316] border-orange-200 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800 hover:opacity-80 transition inline-flex items-center gap-1.5">
+          : `<button type="button" onclick="toggleDeliveryStatus('${o.id}')" title="Clique para marcar como Entregue" class="text-xs font-bold px-3 py-1 rounded-full border bg-orange-50 text-[#F97316] border-orange-300 dark:bg-orange-950/70 dark:text-orange-300 dark:border-orange-800 hover:opacity-85 transition inline-flex items-center gap-1.5">
                <i class="fa-solid fa-box text-[10px]"></i> Não Entregue
              </button>`;
 
+        const concludedSwooshBadge = isConcluded
+          ? `<span title="Pedido Concluído" class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm">${nikeSwooshSvg}</span>`
+          : '';
+
         return `
-          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+          <tr class="${rowClass}">
             <td class="py-4 px-6">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-[#2563EB] dark:text-blue-400">${o.id}</span>
-                <span class="font-bold text-slate-900 dark:text-white">${o.item}</span>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-lg ${isConcluded ? 'bg-emerald-600 text-white' : 'bg-blue-50 dark:bg-blue-950 text-[#2563EB] dark:text-blue-400'}">${o.id}</span>
+                ${concludedSwooshBadge}
+                <span class="font-bold ${isConcluded ? 'text-emerald-950 dark:text-emerald-100' : 'text-slate-900 dark:text-white'}">${o.item}</span>
               </div>
-              <p class="text-xs text-slate-400 mt-1">Qtd: <strong>${qty}x</strong> • Unit: ${formatCurrency(unit)}${cost > 0 ? ` • Outros: +${formatCurrency(cost)}` : ''}</p>
+              <p class="text-xs ${isConcluded ? 'text-emerald-700 dark:text-emerald-300/80' : 'text-slate-400'} mt-1">Qtd: <strong>${qty}x</strong> • Unit: ${formatCurrency(unit)}${cost > 0 ? ` • Outros: +${formatCurrency(cost)}` : ''}</p>
             </td>
             <td class="py-4 px-4 text-xs">
-              <div class="text-slate-500">Pedido: <strong class="text-slate-700 dark:text-slate-200">${formatDateBR(o.orderDate)}</strong></div>
-              <div class="text-slate-500 mt-0.5">Entrega: <strong class="text-[#F97316]">${formatDateBR(o.deliveryDate)}</strong></div>
+              <div class="${isConcluded ? 'text-emerald-800 dark:text-emerald-300' : 'text-slate-500'}">Pedido: <strong class="${isConcluded ? 'text-emerald-950 dark:text-white' : 'text-slate-700 dark:text-slate-200'}">${formatDateBR(o.orderDate)}</strong></div>
+              <div class="${isConcluded ? 'text-emerald-800 dark:text-emerald-300' : 'text-slate-500'} mt-0.5">Entrega: <strong class="${isConcluded ? 'text-emerald-700 dark:text-emerald-300' : 'text-[#F97316]'}">${formatDateBR(o.deliveryDate)}</strong></div>
             </td>
             <td class="py-4 px-4">
-              <div class="font-semibold text-slate-800 dark:text-slate-200">${o.client}</div>
-              <div class="text-xs text-slate-400">${o.phone || '-'}</div>
+              <div class="font-semibold ${isConcluded ? 'text-emerald-950 dark:text-emerald-100' : 'text-slate-800 dark:text-slate-200'}">${o.client}</div>
+              <div class="text-xs ${isConcluded ? 'text-emerald-700 dark:text-emerald-300/80' : 'text-slate-400'}">${o.phone || '-'}</div>
             </td>
             <td class="py-4 px-4">
-              <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">${o.material}</span>
+              <span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-lg ${isConcluded ? 'bg-emerald-200/70 text-emerald-900 dark:bg-emerald-900/60 dark:text-emerald-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}">${o.material}</span>
             </td>
             <td class="py-4 px-4">
-              <button onclick="cycleProductionStatus('${o.id}')" title="Clique para avançar o status de produção" class="text-xs font-bold px-3 py-1 rounded-full border ${statusBadge} hover:opacity-80 transition">
-                ${o.status}
+              <button onclick="cycleProductionStatus('${o.id}')" title="Clique para avançar o status de produção" class="text-xs font-bold px-3 py-1 rounded-full border ${statusBadge} hover:opacity-85 transition inline-flex items-center gap-1.5">
+                ${isConcluded ? nikeSwooshSvg : ''}
+                <span>${o.status}</span>
               </button>
             </td>
             <td class="py-4 px-4">
               ${deliveryButtonHtml}
             </td>
             <td class="py-4 px-4">
-              <div class="font-extrabold text-slate-900 dark:text-white">${formatCurrency(total)}</div>
+              <div class="font-extrabold ${!isPaid ? 'text-rose-600 dark:text-rose-400' : (isConcluded ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-900 dark:text-white')}">${formatCurrency(total)}</div>
               <div class="flex items-center gap-2 mt-1">
-                <button onclick="cyclePayment('${o.id}')" title="Clique para alternar pagamento" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${payBadge} hover:opacity-80 transition">
+                <button onclick="cyclePayment('${o.id}')" title="Clique para alternar pagamento" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${payBadge} hover:opacity-85 transition">
                   ${o.payment}
                 </button>
               </div>
             </td>
             <td class="py-4 px-6 text-right space-x-1">
-              <button onclick="editOrder('${o.id}')" title="Editar Pedido" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+              <button onclick="editOrder('${o.id}')" title="Editar Pedido" class="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 ${isConcluded ? 'text-emerald-800 dark:text-emerald-200' : 'text-slate-500'}">
                 <i class="fa-solid fa-pen"></i>
               </button>
-              <button onclick="requestDeleteOrder('${o.id}')" title="Excluir Pedido" class="p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-500">
+              <button onclick="requestDeleteOrder('${o.id}')" title="Excluir Pedido" class="p-2 rounded-lg hover:bg-rose-500/15 text-rose-600">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </td>
@@ -1314,9 +1582,9 @@
       document.getElementById('orderId').value = '';
       document.getElementById('orderModalTitle').textContent = 'Novo Pedido 3D';
       document.getElementById('orderModalNumberBadge').textContent = `Nº ${nextId}`;
-      const today = new Date().toISOString().split('T')[0];
+      const today = toLocalISO(new Date());
       document.getElementById('orderDate').value = today;
-      document.getElementById('orderDeliveryDate').value = today;
+      document.getElementById('orderDeliveryDate').value = selectedDeliveryDateFilter || today;
       document.getElementById('orderMaterial').value = 'PLA';
       document.getElementById('orderQty').value = 1;
       document.getElementById('orderCost').value = 0;
@@ -1433,7 +1701,7 @@
     }
 
     // =========================================================================
-    // 7. CRUD DE CUSTOS & MATERIAIS
+    // 8. CRUD DE CUSTOS & MATERIAIS
     // =========================================================================
     function renderMaterials() {
       let totalSpent = 0;
@@ -1495,7 +1763,7 @@
       document.getElementById('materialModalTitle').textContent = 'Novo Material';
       document.getElementById('matQty').value = 1;
       document.getElementById('matUnitCost').value = '';
-      document.getElementById('matDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('matDate').value = toLocalISO(new Date());
       updateMatTotalPreview();
       document.getElementById('materialModal').classList.remove('hidden');
     }
@@ -1552,7 +1820,7 @@
     }
 
     // =========================================================================
-    // 8. CRUD DE TAREFAS
+    // 9. CRUD DE TAREFAS
     // =========================================================================
     function renderTasks() {
       const openCount = tasks.filter(t => t.status !== 'Concluído').length;
@@ -1603,7 +1871,7 @@
       document.getElementById('taskForm').reset();
       document.getElementById('taskId').value = '';
       document.getElementById('taskModalTitle').textContent = 'Nova Tarefa';
-      document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('taskDate').value = toLocalISO(new Date());
       document.getElementById('taskStatus').value = 'Aberto';
       document.getElementById('taskModal').classList.remove('hidden');
     }
@@ -1664,13 +1932,14 @@
 
     function renderAll() {
       updateKPIs();
+      renderDeliveryCalendar();
       renderOrders();
       renderMaterials();
       renderTasks();
     }
 
     // =========================================================================
-    // 9. EXPORTAÇÃO DE RELATÓRIO PDF PROFISSIONAL COM LOGOMARCA VETORIAL
+    // 10. EXPORTAÇÃO DE RELATÓRIO PDF PROFISSIONAL COM LOGOMARCA VETORIAL
     // =========================================================================
     function togglePdfModeFields() {
       const mode = document.getElementById('pdfReportMode').value;
@@ -1700,24 +1969,20 @@
       const ox = cx - r;
       const oy = cy - r;
 
-      // Estrutura da impressora 3D
       doc.setDrawColor(31, 41, 51);
       doc.setLineWidth(1.1);
       doc.roundedRect(ox + 22 * s, oy + 20 * s, 56 * s, 54 * s, 2.2, 2.2, 'S');
       doc.line(ox + 22 * s, oy + 35 * s, ox + 78 * s, oy + 35 * s);
 
-      // Extrusora
       doc.setFillColor(31, 41, 51);
       doc.roundedRect(ox + 43 * s, oy + 28 * s, 14 * s, 14 * s, 0.8, 0.8, 'F');
       doc.triangle(ox + 46 * s, oy + 42 * s, ox + 54 * s, oy + 42 * s, ox + 50 * s, oy + 49 * s, 'F');
 
-      // Filamento laranja (#F97316)
       doc.setDrawColor(249, 115, 22);
       doc.setLineWidth(0.95);
       doc.line(ox + 50 * s, oy + 13 * s, ox + 50 * s, oy + 28 * s);
       doc.lines([[0, 8 * s], [-13 * s, 11 * s], [22 * s, 2 * s]], ox + 50 * s, oy + 49 * s);
 
-      // Cubo isométrico azul (#2563EB)
       const p1 = [ox + 68 * s, oy + 54 * s];
       const p2 = [ox + 83 * s, oy + 62 * s];
       const p3 = [ox + 83 * s, oy + 79 * s];
@@ -1792,7 +2057,6 @@
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
 
-      // Cabeçalho Escuro Institucional
       doc.setFillColor(31, 41, 51);
       doc.rect(0, 0, pageWidth, 36, 'F');
 
@@ -1845,10 +2109,8 @@
         const gap = 5;
 
         if (isPrintMode) {
-          // Modo Impressão: 2 cartões apenas com Quantidade de Pedidos e Quantidade de Itens/Peças (Sem Valores)
           const cardW = (pageWidth - 28 - gap) / 2;
 
-          // Card 1: Total de Pedidos
           doc.setFillColor(239, 246, 255);
           doc.setDrawColor(191, 219, 254);
           doc.setLineWidth(0.3);
@@ -1863,7 +2125,6 @@
           doc.setTextColor(37, 99, 235);
           doc.text(`${filteredOrders.length} pedido(s)`, 19, cardY + 16.5);
 
-          // Card 2: Total de Peças / Itens
           const card2X = 14 + cardW + gap;
           doc.setFillColor(255, 247, 237);
           doc.setDrawColor(254, 215, 170);
@@ -1877,10 +2138,8 @@
           doc.setTextColor(234, 88, 12);
           doc.text(`${totalPieces} unidade(s)`, card2X + 5, cardY + 16.5);
         } else {
-          // Modo Financeiro Completo: 3 cartões
           const cardW = (pageWidth - 28 - (gap * 2)) / 3;
 
-          // Card 1: Faturamento Bruto
           doc.setFillColor(239, 246, 255);
           doc.setDrawColor(191, 219, 254);
           doc.setLineWidth(0.3);
@@ -1895,7 +2154,6 @@
           doc.setTextColor(37, 99, 235);
           doc.text(formatCurrency(grossTotal), 19, cardY + 16.5);
 
-          // Card 2: Saldo a Receber
           const card2X = 14 + cardW + gap;
           doc.setFillColor(255, 247, 237);
           doc.setDrawColor(254, 215, 170);
@@ -1909,7 +2167,6 @@
           doc.setTextColor(234, 88, 12);
           doc.text(formatCurrency(pendingTotal), card2X + 5, cardY + 16.5);
 
-          // Card 3: Volume de Pedidos/Peças
           const card3X = card2X + cardW + gap;
           doc.setFillColor(248, 250, 252);
           doc.setDrawColor(226, 232, 240);
@@ -2125,7 +2382,7 @@
     }
 
     // =========================================================================
-    // 10. BACKUP & RESTAURAÇÃO JSON
+    // 11. BACKUP & RESTAURAÇÃO JSON
     // =========================================================================
     function openBackupModal() {
       document.getElementById('backupModal').classList.remove('hidden');
@@ -2170,18 +2427,3 @@
       };
       reader.readAsText(file);
     }
-
-    // =========================================================================
-    // 11. INICIALIZAÇÃO
-    // =========================================================================
-    window.onload = function() {
-      checkInitialPinLock();
-      initTheme();
-      orders = normalizeOrderIds(orders);
-      writeLocalCache();
-      renderAll();
-      initRealtimeSync();
-    };
-  </script>
-</body>
-</html>
