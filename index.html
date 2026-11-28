@@ -312,6 +312,36 @@
 
     <!-- ABA 1: PEDIDOS -->
     <section id="sectionOrders" class="space-y-4">
+      <!-- PAINEL DEDICADO: IMPRESSÕES DO DIA -->
+      <div id="todayPrintsCard" class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-[#2563EB]/30 dark:border-blue-800/60 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-50/90 to-orange-50/50 dark:from-blue-950/40 dark:to-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shadow-sm">
+              <i class="fa-solid fa-print"></i>
+            </span>
+            <div>
+              <h3 class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base flex items-center gap-2">
+                Impressões do Dia
+                <span id="todayPrintsCountBadge" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#2563EB] text-white">0</span>
+              </h3>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">Pedidos marcados na fila para priorizar na impressora hoje</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" id="printTodayListBtn" onclick="printTodayPrintsPDF()" class="hidden text-xs font-bold px-3.5 py-1.5 rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm inline-flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>Imprimir Lista</span>
+            </button>
+            <button type="button" id="clearTodayPrintsBtn" onclick="clearAllTodayPrints()" class="hidden text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-600 dark:text-slate-300 hover:text-rose-600 transition">
+              Limpar Seleção
+            </button>
+          </div>
+        </div>
+        <div id="todayPrintsBody" class="p-4 sm:p-5">
+          <p class="text-xs text-slate-400 text-center py-3">Nenhum pedido marcado para impressão hoje. Clique no ícone de impressora ao lado do pedido na tabela abaixo para enviá-lo para cá.</p>
+        </div>
+      </div>
+
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
@@ -680,6 +710,7 @@
           <select id="pdfReportMode" onchange="togglePdfModeFields()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-bold text-[#2563EB] dark:text-blue-400">
             <option value="FINANCEIRO">Relatório Completo (Financeiro & Pedidos)</option>
             <option value="IMPRESSAO">Fila de Impressão (Na Fila, Imprimindo e Acabamento — Sem Valores)</option>
+            <option value="IMPRESSOES_DIA">Impressões do Dia (Apenas Pedidos Marcados — Sem Valores)</option>
           </select>
         </div>
 
@@ -1057,7 +1088,8 @@
             ...o,
             id: String(parseInt(String(o.id).replace(/\D/g, ''), 10) || 1).padStart(2, '0'),
             status: prodStatus,
-            deliveryStatus: delivStatus
+            deliveryStatus: delivStatus,
+            isTodayPrint: Boolean(o.isTodayPrint)
           };
         })
         .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
@@ -1464,7 +1496,97 @@
     // =========================================================================
     // 7. CRUD DE PEDIDOS (TARJA VERDE + SWOOSH NIKE QUANDO CONCLUÍDO + PGTO VERMELHO SE PENDENTE)
     // =========================================================================
+    function toggleTodayPrint(id) {
+      const o = orders.find(x => x.id === id);
+      if (!o) return;
+      o.isTodayPrint = !o.isTodayPrint;
+      saveAll(true);
+      showToast(o.isTodayPrint
+        ? `Pedido ${o.id} adicionado em Impressões do Dia!`
+        : `Pedido ${o.id} removido de Impressões do Dia.`);
+    }
+
+    function clearAllTodayPrints() {
+      orders.forEach(o => { o.isTodayPrint = false; });
+      saveAll(true);
+      showToast('Lista de Impressões do Dia limpa.');
+    }
+
+    function renderTodayPrintsCard() {
+      const container = document.getElementById('todayPrintsBody');
+      const countBadge = document.getElementById('todayPrintsCountBadge');
+      const clearBtn = document.getElementById('clearTodayPrintsBtn');
+      const printBtn = document.getElementById('printTodayListBtn');
+      if (!container || !countBadge) return;
+
+      const todayList = orders
+        .filter(o => o.isTodayPrint)
+        .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
+
+      countBadge.textContent = todayList.length;
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', todayList.length === 0);
+      }
+      if (printBtn) {
+        printBtn.classList.toggle('hidden', todayList.length === 0);
+        printBtn.classList.toggle('inline-flex', todayList.length > 0);
+      }
+
+      if (todayList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-3">Nenhum pedido marcado para impressão hoje. Clique no ícone <i class="fa-solid fa-print text-[#2563EB] mx-1"></i> em qualquer pedido abaixo para enviá-lo para cá.</p>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          ${todayList.map(o => {
+            const qty = Number(o.qty) || 1;
+            const isConcluded = o.status === 'Concluído';
+            const cardStyle = isConcluded
+              ? 'bg-emerald-50/90 dark:bg-emerald-950/45 border-emerald-400 dark:border-emerald-700'
+              : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700';
+
+            const statusPill = isConcluded
+              ? 'bg-emerald-600 text-white'
+              : o.status === 'Imprimindo'
+              ? 'bg-[#2563EB] text-white'
+              : o.status === 'Acabamento'
+              ? 'bg-amber-500 text-white'
+              : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200';
+
+            return `
+              <div class="p-3.5 rounded-xl border ${cardStyle} flex flex-col justify-between gap-2.5 transition">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-md ${isConcluded ? 'bg-emerald-600 text-white' : 'bg-[#2563EB] text-white'}">#${o.id}</span>
+                      <span class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">${o.client}</span>
+                    </div>
+                    <p class="font-extrabold text-sm text-slate-900 dark:text-white mt-1 line-clamp-2">${o.item}</p>
+                  </div>
+                  <button type="button" onclick="toggleTodayPrint('${o.id}')" title="Remover de Impressões do Dia" class="p-1.5 rounded-lg bg-blue-100/80 dark:bg-blue-950 text-[#2563EB] dark:text-blue-400 hover:bg-rose-100 hover:text-rose-600 transition shrink-0">
+                    <i class="fa-solid fa-print"></i>
+                  </button>
+                </div>
+
+                <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/70 dark:border-slate-700/70 text-xs">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">${qty}x • ${o.material}</span>
+                    <span class="text-[11px] text-slate-500">Ent: <strong class="text-[#F97316]">${formatDateBR(o.deliveryDate)}</strong></span>
+                  </div>
+                  <button type="button" onclick="cycleProductionStatus('${o.id}')" title="Clique para avançar status de produção" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${statusPill} hover:opacity-85 transition">
+                    ${o.status}
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
     function renderOrders() {
+      renderTodayPrintsCard();
       const search = document.getElementById('searchOrders').value.toLowerCase();
       const statusFilter = document.getElementById('filterStatus').value;
       const deliveryFilter = document.getElementById('filterDelivery').value;
@@ -1554,10 +1676,18 @@
           ? `<span title="Pedido Concluído" class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm">${nikeSwooshSvg}</span>`
           : '';
 
+        const isTodayPrint = Boolean(o.isTodayPrint);
+        const todayPrintBtnClass = isTodayPrint
+          ? 'p-2 rounded-lg bg-[#2563EB] text-white shadow-sm hover:bg-blue-700 transition'
+          : 'p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/50 text-slate-400 hover:text-[#2563EB] transition';
+
         return `
           <tr class="${rowClass}">
             <td class="py-4 px-6">
               <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" onclick="toggleTodayPrint('${o.id}')" title="${isTodayPrint ? 'Remover de Impressões do Dia' : 'Marcar para Impressões do Dia'}" class="${todayPrintBtnClass}">
+                  <i class="fa-solid fa-print text-xs"></i>
+                </button>
                 <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-lg ${isConcluded ? 'bg-emerald-600 text-white' : 'bg-blue-50 dark:bg-blue-950 text-[#2563EB] dark:text-blue-400'}">${o.id}</span>
                 ${concludedSwooshBadge}
                 <span class="font-bold ${isConcluded ? 'text-emerald-950 dark:text-emerald-100' : 'text-slate-900 dark:text-white'}">${o.item}</span>
@@ -1677,6 +1807,7 @@
     function saveOrder(e) {
       e.preventDefault();
       const existingId = document.getElementById('orderId').value;
+      const existingOrder = existingId ? orders.find(x => x.id === existingId) : null;
       const prodStatus = document.getElementById('orderStatus').value;
       const delivStatus = prodStatus === 'Concluído'
         ? document.getElementById('orderDeliveryStatus').value
@@ -1695,7 +1826,8 @@
         cost: Number(document.getElementById('orderCost').value) || 0,
         status: prodStatus,
         deliveryStatus: delivStatus,
-        payment: document.getElementById('orderPayment').value
+        payment: document.getElementById('orderPayment').value,
+        isTodayPrint: existingOrder ? Boolean(existingOrder.isTodayPrint) : false
       };
 
       if (existingId) {
@@ -1995,11 +2127,19 @@
     // =========================================================================
     function togglePdfModeFields() {
       const mode = document.getElementById('pdfReportMode').value;
-      const isPrintMode = mode === 'IMPRESSAO';
+      const isPrintMode = mode === 'IMPRESSAO' || mode === 'IMPRESSOES_DIA';
       document.getElementById('pdfPaymentFilterGroup').classList.toggle('hidden', isPrintMode);
       document.getElementById('pdfIncludeSummaryLabel').textContent = isPrintMode
         ? 'Incluir resumo de quantidade de pedidos e peças no topo'
         : 'Incluir cartões executivos de resumo financeiro no topo';
+    }
+
+    function printTodayPrintsPDF() {
+      document.getElementById('pdfReportMode').value = 'IMPRESSOES_DIA';
+      document.getElementById('pdfMonthFilter').value = '';
+      document.getElementById('pdfIncludeSummary').checked = true;
+      document.getElementById('pdfIncludeTasks').checked = false;
+      generateVectorPDF();
     }
 
     function openPdfOptionsModal() {
@@ -2067,7 +2207,8 @@
 
     function generateVectorPDF() {
       const reportMode = document.getElementById('pdfReportMode').value;
-      const isPrintMode = reportMode === 'IMPRESSAO';
+      const isTodayOnlyMode = reportMode === 'IMPRESSOES_DIA';
+      const isPrintMode = reportMode === 'IMPRESSAO' || isTodayOnlyMode;
       const payFilter = document.getElementById('pdfPaymentFilter').value;
       const monthFilter = document.getElementById('pdfMonthFilter').value;
       const includeSummary = document.getElementById('pdfIncludeSummary').checked;
@@ -2079,13 +2220,21 @@
       const filteredOrders = orders
         .filter(o => {
           const matchMonth = !monthFilter || (o.orderDate && o.orderDate.startsWith(monthFilter));
-          if (isPrintMode) {
+          if (isTodayOnlyMode) {
+            return Boolean(o.isTodayPrint) && matchMonth;
+          }
+          if (reportMode === 'IMPRESSAO') {
             return PRINT_QUEUE_STATUSES.includes(o.status) && matchMonth;
           }
           const matchPay = payFilter === 'ALL' || o.payment === payFilter;
           return matchPay && matchMonth;
         })
         .sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
+
+      if (isTodayOnlyMode && filteredOrders.length === 0) {
+        showToast('Nenhum pedido marcado em Impressões do Dia.');
+        return;
+      }
 
       let grossTotal = 0;
       let pendingTotal = 0;
@@ -2131,7 +2280,9 @@
       doc.setFontSize(9.5);
       doc.setTextColor(203, 213, 225);
       doc.text(
-        isPrintMode
+        isTodayOnlyMode
+          ? 'Folha de Produção • Impressões do Dia'
+          : isPrintMode
           ? 'Ordem de Produção & Fila de Impressão 3D'
           : 'Relatório Executivo de Produção & Pedidos 3D',
         39,
@@ -2141,7 +2292,9 @@
       const now = new Date();
       const dateStr = now.toLocaleDateString('pt-BR');
       const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      const baseFilterLabel = isPrintMode
+      const baseFilterLabel = isTodayOnlyMode
+        ? 'Impressões do Dia'
+        : isPrintMode
         ? 'Fila de Impressão'
         : (payFilter === 'ALL' ? 'Todos' : payFilter);
       const filterDesc = `${baseFilterLabel}${monthFilter ? ` • Mês ${monthFilter}` : ''}`;
@@ -2172,7 +2325,7 @@
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(7.5);
           doc.setTextColor(71, 85, 105);
-          doc.text('QUANTIDADE DE PEDIDOS NA FILA', 19, cardY + 7.5);
+          doc.text(isTodayOnlyMode ? 'PEDIDOS PARA IMPRIMIR HOJE' : 'QUANTIDADE DE PEDIDOS NA FILA', 19, cardY + 7.5);
           doc.setFontSize(14);
           doc.setTextColor(37, 99, 235);
           doc.text(`${filteredOrders.length} pedido(s)`, 19, cardY + 16.5);
@@ -2221,17 +2374,18 @@
 
           const card3X = card2X + cardW + gap;
           doc.setFillColor(248, 250, 252);
-          doc.setDrawColor(226, 232, 240);
-          doc.roundedRect(card3X, cardY, cardW, cardH, 2.5, 2.5, 'FD');
-          doc.setFillColor(31, 41, 51);
-          doc.rect(card3X, cardY, 2, cardH, 'F');
-          doc.setFontSize(7.5);
-          doc.setTextColor(71, 85, 105);
-          doc.text('VOLUME DE PRODUÇÃO', card3X + 5, cardY + 7.5);
-          doc.setFontSize(12);
-          doc.setTextColor(31, 41, 51);
-          doc.text(`${filteredOrders.length} pedido(s) • ${totalPieces} peça(s)`, card3X + 5, cardY + 16.5);
-        }
+      const filePrefix = isTodayOnlyMode
+        ? 'impressoes_do_dia_luan_3d_studio'
+        : isPrintMode
+        ? 'fila_impressao_luan_3d_studio'
+        : 'relatorio_luan_3d_studio';
+      doc.save(`${filePrefix}_${now.toISOString().split('T')[0]}.pdf`);
+      showToast(isTodayOnlyMode
+        ? 'Folha de Impressões do Dia gerada!'
+        : isPrintMode
+        ? 'Folha de Fila de Impressão gerada!'
+        : 'Relatório PDF gerado com sucesso!');
+    }
 
         tableStartY = 73;
       }
